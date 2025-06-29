@@ -1,4 +1,4 @@
-package com.adendl.traveljournalai.Model;
+package com.adendl.traveljournalai.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
