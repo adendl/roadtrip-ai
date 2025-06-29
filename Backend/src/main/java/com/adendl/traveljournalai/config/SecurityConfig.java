@@ -1,4 +1,4 @@
-package com.adendl.traveljournalai;
+package com.adendl.traveljournalai.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -9,7 +9,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import com.adendl.traveljournalai.JwtRequestFilter;
 
 @Configuration
 @EnableWebSecurity
