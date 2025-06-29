@@ -8,8 +8,8 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-//import software.amazon.awssdk.services.s3.S3Client;
-//import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -18,8 +18,9 @@ import java.util.UUID;
 public class JournalEntryService {
     @Autowired
     private JournalEntryRepository journalEntryRepository;
-    @Autowired
+    //@Autowired
     //private S3Client s3Client;
+    //@Autowired
     private final GeometryFactory geometryFactory = new GeometryFactory();
 
     public JournalEntry createEntry(JournalEntryDTO dto, MultipartFile photo, User user) throws Exception {
