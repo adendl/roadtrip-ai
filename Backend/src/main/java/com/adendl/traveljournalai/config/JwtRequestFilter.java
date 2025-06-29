@@ -1,4 +1,4 @@
-package com.adendl.traveljournalai;
+package com.adendl.traveljournalai.config;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
