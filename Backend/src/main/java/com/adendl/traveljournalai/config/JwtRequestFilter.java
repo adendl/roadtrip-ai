@@ -19,7 +19,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
 
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
@@ -55,7 +54,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 username = claims.getSubject();
 
             } catch (Exception e) {
-                // log.warn("Invalid JWT", e);
+                System.out.println(e);
             }
         }
 
