@@ -1,4 +1,4 @@
-TravelJournalAI
+Travel Journal AI
 ===============
 
 Overview
