@@ -7,3 +7,6 @@ docker run -d \
   -e POSTGRES_USER=admin \
   -e POSTGRES_PASSWORD=secret \
   postgis/postgis:15-3.4
+
+
+  psql -h localhost -p 5432 -U admin -d traveljournal
