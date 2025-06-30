@@ -1,14 +1,35 @@
 import React, { useState } from 'react';
 import Button from '../components/Button';
 import Header from '../components/Header';
+import axios from 'axios';
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
-  const handleSubmit = (e: React.MouseEvent) => {
+  const handleSubmit = async (e: React.MouseEvent) => {
     e.preventDefault();
-    console.log('Login Attempt:', { username, password });
+    setError('');
+    setSuccessMessage('');
+
+    try {
+      const response = await axios.post(`http://localhost:9090/api/users/login`, {
+        username,
+        password,
+      });
+      const token = response.data; // Expecting a string token from the backend
+      localStorage.setItem('token', token); // Store token for future use
+      setSuccessMessage('Login Successful!');
+      // Optional: Redirect after a delay (e.g., to a dashboard)
+      setTimeout(() => {
+        window.location.href = '/'; // Redirect to homepage or a protected route
+      }, 1000);
+    } catch (err) {
+      console.error('Login Error:', err);
+      setError('Invalid username or password. Please try again.');
+    }
   };
 
   return (
@@ -38,6 +59,8 @@ const Login: React.FC = () => {
                 onClick={handleSubmit}
                 variant="primary"
               />
+              {error && <p className="text-red-400 text-center mt-4">{error}</p>}
+              {successMessage && <p className="text-green-400 text-center mt-4">{successMessage}</p>}
             </div>
             <p className="mt-4 text-center text-gray-300">
               Don’t have an account?{' '}

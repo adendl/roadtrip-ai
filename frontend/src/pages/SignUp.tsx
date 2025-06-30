@@ -33,7 +33,7 @@ const SignUp: React.FC = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:9090/api/users/register', {
+      const response = await axios.post(`http://localhost:9090/api/users/register`, {
         username,
         email,
         password,

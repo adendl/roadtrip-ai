@@ -75,11 +75,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authToken);
         }
 
-        // Set CORS headers for all responses (optional, as SecurityConfig should handle this)
-        response.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
-        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        response.setHeader("Access-Control-Allow-Headers", "*");
-
         chain.doFilter(request, response);
     }
 }
