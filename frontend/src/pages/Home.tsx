@@ -4,8 +4,13 @@ import Hero from '../components/Hero';
 import Header from '../components/Header';
 import Card from '../components/Card'; // Import the new Card component
 import { CommandLineIcon } from '@heroicons/react/24/solid';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Home: React.FC = () => {
+  const { isLoggedIn } = useAuth();
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-blue-900 animate-gradient-x text-white">
       <Header />
@@ -16,16 +21,26 @@ const Home: React.FC = () => {
             description="Capture your travel adventures with ease. Create digital journals, add photos and videos, get AI-powered insights, and share your stories with the world."
           />
           <div className="mt-10 space-y-4 sm:space-y-0 sm:flex sm:space-x-6">
-            <Button
-              text="Get Started"
-              onClick={() => window.location.href = '/signup'}
-              variant="primary"
-            />
-            <Button
-              text="Login"
-              onClick={() => window.location.href = '/login'}
-              variant="secondary"
-            />
+            {!isLoggedIn ? (
+              <>
+                <Button
+                  text="Get Started"
+                  onClick={() => window.location.href = '/signup'}
+                  variant="primary"
+                />
+                <Button
+                  text="Login"
+                  onClick={() => window.location.href = '/login'}
+                  variant="secondary"
+                />
+              </>
+            ) : (
+              <Button
+                text="Go to Dashboard"
+                onClick={() => navigate('/dashboard')}
+                variant="primary"
+              />
+            )}
           </div>
 
           {/* Features Cards Section */}
@@ -83,7 +98,7 @@ const Home: React.FC = () => {
           </section>
         </div>
       </main>
-{/* Footer with GitHub Link */}
+      {/* Footer with GitHub Link */}
       <footer className="w-full py-6 bg-gray-800 bg-opacity-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p>Read Source Code on GitHub</p>
@@ -93,7 +108,7 @@ const Home: React.FC = () => {
             rel="noopener noreferrer"
             className="inline-flex items-center bg-gradient-to-r from-indigo-500 to-blue-600 bg-clip-text text-transparent font-semibold text-lg hover:from-indigo-400 hover:to-blue-500 transition-all duration-300 transform hover:scale-105 px-4 py-2 rounded-full shadow-md hover:shadow-lg"
           >
-            <CommandLineIcon className="h-6 w-6 mr-2 text-black" /> {/* Updated icon */}
+            <CommandLineIcon className="h-6 w-6 mr-2 text-black" />
             https://github.com/adendl/traveljournal-ai
           </a>
         </div>

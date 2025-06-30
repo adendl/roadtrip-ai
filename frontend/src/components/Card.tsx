@@ -9,7 +9,7 @@ interface CardProps {
 
 const Card: React.FC<CardProps> = ({ title, description, imageUrl, altText }) => {
   return (
-    <div className="bg-white/10 backdrop-blur-md rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
+    <div className="bg-white/10 backdrop-blur-md rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow hover:-translate-y-2 hover:scale-105 transition-transform transition-shadow duration-300">
       <img
         src={imageUrl}
         alt={altText}
