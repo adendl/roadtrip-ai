@@ -1,23 +1,12 @@
 import React from 'react';
 import Button from '../components/Button';
 import Hero from '../components/Hero';
+import Header from '../components/Header';
 
 const Home: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-blue-900 animate-gradient-x text-white">
-      {/* Header */}
-      <header className="fixed w-full bg-transparent backdrop-blur-md z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div className="text-2xl font-bold">Travel Journal AI</div>
-          <nav className="space-x-6">
-            <a href="#features" className="hover:text-indigo-300 transition-colors">Features</a>
-            <a href="#about" className="hover:text-indigo-300 transition-colors">About</a>
-            <a href="/login" className="hover:text-indigo-300 transition-colors">Login</a>
-          </nav>
-        </div>
-      </header>
-
-      {/* Main Content */}
+      <Header />
       <main className="pt-24 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center text-center">
           <Hero

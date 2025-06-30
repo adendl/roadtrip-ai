@@ -2,9 +2,9 @@ import React from 'react';
 
 interface ButtonProps {
   text: string;
-  onClick: () => void;
+  onClick: (e: React.MouseEvent) => void; // Updated to accept MouseEvent
   variant?: 'primary' | 'secondary';
-  icon?: React.ReactNode; // Optional icon prop
+  icon?: React.ReactNode;
 }
 
 const Button: React.FC<ButtonProps> = ({ text, onClick, variant = 'primary', icon }) => {
