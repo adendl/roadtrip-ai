@@ -68,7 +68,7 @@ const Home: React.FC = () => {
               <Card
                 title="Sharing Options"
                 description="Share entries publicly or privately with shareable links."
-                imageUrl="https://images.unsplash.com/photo-1517245386807-9b2e8b77a1e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80"
+                imageUrl="https://images.unsplash.com/photo-1750801321932-3d3e3fcdfdcd?q=80&w=1740&auto=format&fit=crop&w=300&q=80&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                 altText="Sharing Options"
               />
 
@@ -76,7 +76,7 @@ const Home: React.FC = () => {
               <Card
                 title="Media Uploads"
                 description="Upload and manage photos and videos for your journal entries."
-                imageUrl="https://cdn.pixabay.com/photo/2016/01/03/00/43/upload-1118929_1280.png?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80"
+                imageUrl="https://images.unsplash.com/photo-1629904888780-8de0c7aeed28?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&w=300&q=80"
                 altText="Media Uploads"
               />
             </div>
@@ -86,6 +86,7 @@ const Home: React.FC = () => {
 {/* Footer with GitHub Link */}
       <footer className="w-full py-6 bg-gray-800 bg-opacity-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p>Read Source Code on GitHub</p>
           <a
             href="https://github.com/adendl/traveljournal-ai"
             target="_blank"
