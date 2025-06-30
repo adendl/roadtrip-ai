@@ -25,7 +25,7 @@ const Login: React.FC = () => {
       login(token);
       setSuccessMessage('Login Successful!');
       setTimeout(() => {
-        window.location.href = '/';
+        window.location.href = "/dashboard";
       }, 2000);
     } catch (err) {
       console.error('Login Error:', err);
