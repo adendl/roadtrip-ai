@@ -3,7 +3,8 @@ import React from 'react';
    import Home from './pages/Home';
    import Login from './pages/Login';
    import SignUp from './pages/SignUp';
-   import Dashboard from './pages/Dashboard'; // Add Dashboard import
+   import Dashboard from './pages/Dashboard';
+   import CreateJournalEntry from './pages/CreateJournalEntry'; // Add new import
    import './styles/index.css';
    import { AuthProvider } from './context/AuthContext';
 
@@ -17,6 +18,7 @@ import React from 'react';
                <Route path="/login" element={<Login />} />
                <Route path="/signup" element={<SignUp />} />
                <Route path="/dashboard" element={<Dashboard />} />
+               <Route path="/create-journal-entry" element={<CreateJournalEntry />} /> {/* New route */}
              </Routes>
            </div>
          </Router>
