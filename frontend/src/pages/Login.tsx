@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import Button from '../components/Button';
 import Header from '../components/Header';
 import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -19,13 +21,12 @@ const Login: React.FC = () => {
         username,
         password,
       });
-      const token = response.data; // Expecting a string token from the backend
-      localStorage.setItem('token', token); // Store token for future use
+      const token = response.data;
+      login(token);
       setSuccessMessage('Login Successful!');
-      // Optional: Redirect after a delay (e.g., to a dashboard)
       setTimeout(() => {
-        window.location.href = '/'; // Redirect to homepage or a protected route
-      }, 1000);
+        window.location.href = '/';
+      }, 2000);
     } catch (err) {
       console.error('Login Error:', err);
       setError('Invalid username or password. Please try again.');
@@ -76,3 +77,7 @@ const Login: React.FC = () => {
 };
 
 export default Login;
+
+
+
+
