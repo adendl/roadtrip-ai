@@ -7,9 +7,13 @@ interface HeroProps {
 
 const Hero: React.FC<HeroProps> = ({ title, description }) => {
   return (
-    <div className="text-center py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
-      <h1 className="text-4xl font-bold mb-4">{title}</h1>
-      <p className="text-lg max-w-2xl mx-auto">{description}</p>
+    <div className="px-4 py-20 sm:px-6 lg:px-8 bg-transparent">
+      <h1 className="text-5xl md:text-6xl font-extrabold mb-6 animate-fade-in text-white drop-shadow-lg">
+        {title}
+      </h1>
+      <p className="text-xl md:text-2xl max-w-3xl mx-auto mb-8 text-gray-200 leading-relaxed">
+        {description}
+      </p>
     </div>
   );
 };
