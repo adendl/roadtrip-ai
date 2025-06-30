@@ -36,6 +36,16 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                                     FilterChain chain)
             throws ServletException, IOException {
 
+        // Handle CORS preflight OPTIONS request
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            response.setHeader("Access-Control-Allow-Origin", "http://localhost:5173"); // Specific origin
+            response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+            response.setHeader("Access-Control-Allow-Headers", "*");
+            response.setHeader("Access-Control-Max-Age", "3600");
+            response.setStatus(HttpServletResponse.SC_OK);
+            return;
+        }
+
         final String authHeader = request.getHeader("Authorization");
         String jwt = null;
         String username = null;
@@ -54,7 +64,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 username = claims.getSubject();
 
             } catch (Exception e) {
-                System.out.println(e);
+                System.out.println("JWT Parsing Error: " + e.getMessage());
             }
         }
 
@@ -64,6 +74,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authToken);
         }
+
+        // Set CORS headers for all responses (optional, as SecurityConfig should handle this)
+        response.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        response.setHeader("Access-Control-Allow-Headers", "*");
 
         chain.doFilter(request, response);
     }

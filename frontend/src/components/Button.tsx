@@ -8,7 +8,7 @@ interface ButtonProps {
 }
 
 const Button: React.FC<ButtonProps> = ({ text, onClick, variant = 'primary', icon }) => {
-  const baseStyles = 'px-6 py-3 rounded-lg text-white font-semibold focus:outline-none transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5';
+  const baseStyles = 'px-6 py-3 rounded-full text-white font-semibold focus:outline-none transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5';
   const variantStyles = variant === 'primary'
     ? 'bg-indigo-600 hover:bg-indigo-700'
     : 'bg-gray-600 hover:bg-gray-700';

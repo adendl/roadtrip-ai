@@ -59,7 +59,7 @@ const Home: React.FC = () => {
               {/* Card 4: Map Integration */}
               <Card
                 title="Map Integration"
-                description="Visualize trips and journal entries on an interactive map."
+                description="Visualise trips and journal entries on an interactive map."
                 imageUrl="https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80"
                 altText="Map Integration"
               />
