@@ -2,20 +2,29 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
-import { PlusIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, MinusIcon, CheckIcon } from '@heroicons/react/24/outline';
 import Header from '../components/Header';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css'; // Import Leaflet CSS
 import L from 'leaflet'; // Import Leaflet for type safety
 
-interface JournalEntry {
+interface Trip {
   id: number;
-  title: string;
-  content: string;
-  location: { type: string; coordinates: [number, number] };
-  photoUrl: string;
-  aiSummary: string;
+  from: string;
+  to: string;
+  roundtrip: boolean;
+  days: number;
+  interests: string[];
+  distanceKm: number; // Total distance in kilometers
   createdAt: string;
+}
+
+interface DayDetails {
+  dayNumber: number;
+  start: string;
+  end: string;
+  distanceKm: number;
+  coordinates: [number, number];
 }
 
 const Dashboard: React.FC = () => {
@@ -28,63 +37,105 @@ const Dashboard: React.FC = () => {
     }
   }, [isLoggedIn, token, navigate]);
 
-  const [selectedEntry, setSelectedEntry] = useState<JournalEntry | null>(null);
-  const dummyEntries: JournalEntry[] = [
+  const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
+  const [selectedDay, setSelectedDay] = useState<DayDetails | null>(null);
+  const [newTrip, setNewTrip] = useState<Trip>({
+    id: Date.now(),
+    from: '',
+    to: '',
+    roundtrip: false,
+    days: 1,
+    interests: [],
+    distanceKm: 0,
+    createdAt: new Date().toISOString(),
+  });
+  const [trips, setTrips] = useState<Trip[]>([
     {
       id: 1,
-      title: 'Paris Adventure',
-      content: 'Explored the Eiffel Tower and enjoyed croissants by the Seine.',
-      location: { type: 'Point', coordinates: [48.8584, 2.2945] },
-      photoUrl: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
-      aiSummary: 'A delightful trip with iconic landmarks and French cuisine.',
-      createdAt: '2025-06-15T10:00:00Z',
+      from: 'Sydney, Australia',
+      to: 'Melbourne, Australia',
+      roundtrip: false,
+      days: 3,
+      interests: ['adventure', 'food'],
+      distanceKm: 878,
+      createdAt: '2025-07-01T09:00:00Z',
     },
     {
       id: 2,
-      title: 'Tokyo Journey',
-      content: 'Visited Shibuya Crossing and tasted authentic sushi.',
-      location: { type: 'Point', coordinates: [35.6762, 139.6503] },
-      photoUrl: 'https://images.unsplash.com/photo-1542051841857-5f90071e7989?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
-      aiSummary: 'A vibrant urban experience with cultural highlights.',
-      createdAt: '2025-06-20T14:30:00Z',
+      from: 'Tokyo, Japan',
+      to: 'Osaka, Japan',
+      roundtrip: true,
+      days: 2,
+      interests: ['culture', 'sightseeing'],
+      distanceKm: 554,
+      createdAt: '2025-07-01T10:00:00Z',
     },
-    {
-      id: 3,
-      title: 'New York City Trip',
-      content: 'Saw the Statue of Liberty and walked through Central Park.',
-      location: { type: 'Point', coordinates: [40.7128, -74.0060] },
-      photoUrl: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e6?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
-      aiSummary: 'A bustling city tour with iconic sights.',
-      createdAt: '2025-06-25T09:15:00Z',
-    },
-    {
-      id: 4,
-      title: 'Sydney Exploration',
-      content: 'Visited the Sydney Opera House and surfed at Bondi Beach.',
-      location: { type: 'Point', coordinates: [-33.8688, 151.2093] },
-      photoUrl: 'https://images.unsplash.com/photo-1519771356169-4e38ac5e8a8d?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
-      aiSummary: 'A coastal adventure with architectural marvels.',
-      createdAt: '2025-06-28T11:00:00Z',
-    },
-    {
-      id: 5,
-      title: 'Rome Getaway',
-      content: 'Toured the Colosseum and savored authentic Italian pasta.',
-      location: { type: 'Point', coordinates: [41.9028, 12.4964] },
-      photoUrl: 'https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
-      aiSummary: 'A historical journey with delicious cuisine.',
-      createdAt: '2025-06-29T13:30:00Z',
-    },
-    {
-      id: 6,
-      title: 'London Excursion',
-      content: 'Saw Big Ben and explored the British Museum.',
-      location: { type: 'Point', coordinates: [51.5074, -0.1278] },
-      photoUrl: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
-      aiSummary: 'A cultural trip with iconic landmarks.',
-      createdAt: '2025-06-30T09:45:00Z',
-    },
-  ];
+  ]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value, type, checked } = e.target as HTMLInputElement;
+    setNewTrip((prev) => {
+      if (name === 'roundtrip') {
+        return { ...prev, [name]: checked };
+      } else if (type === 'checkbox' && name === 'interests') {
+        return {
+          ...prev,
+          interests: checked
+            ? [...prev.interests, value]
+            : prev.interests.filter((i) => i !== value),
+        };
+      } else {
+        return { ...prev, [name]: value };
+      }
+    });
+  };
+
+  const handleDaysChange = (e: React.MouseEvent, increment: boolean) => {
+    e.preventDefault(); // Prevent form submission
+    setNewTrip((prev) => ({
+      ...prev,
+      days: Math.max(1, prev.days + (increment ? 1 : -1)),
+    }));
+  };
+
+  const handleRoundTripToggle = (e: React.MouseEvent, checked: boolean) => {
+    e.preventDefault(); // Prevent form submission
+    setNewTrip((prev) => ({ ...prev, roundtrip: checked }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setTrips((prev) => [...prev, { ...newTrip, id: Date.now(), distanceKm: 500 }]); // Mock distance
+    setNewTrip((prev) => ({
+      ...prev,
+      id: Date.now(),
+      from: '',
+      to: '',
+      roundtrip: false,
+      days: 1,
+      interests: [],
+      distanceKm: 0,
+      createdAt: new Date().toISOString(),
+    }));
+  };
+
+  const getTripDays = (trip: Trip): DayDetails[] => {
+    const totalDistance = trip.distanceKm;
+    const distancePerDay = totalDistance / trip.days;
+    const days: DayDetails[] = [];
+    for (let i = 1; i <= trip.days; i++) {
+      days.push({
+        dayNumber: i,
+        start: i === 1 ? trip.from : (trip.roundtrip && i === trip.days ? trip.from : trip.to),
+        end: trip.roundtrip && i === trip.days ? trip.from : trip.to,
+        distanceKm: distancePerDay,
+        coordinates: trip.from === 'Sydney, Australia' && trip.to === 'Melbourne, Australia'
+          ? [-34.0 + (i - 1) * (2 / trip.days), 144.0 + (i - 1) * (2 / trip.days)]
+          : [35.0 + (i - 1) * (2 / trip.days), 135.0 + (i - 1) * (2 / trip.days)],
+      });
+    }
+    return days;
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-blue-900 animate-gradient-x text-white">
@@ -93,50 +144,154 @@ const Dashboard: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-8">
             <Button
-              text="Create Journal Entry"
+              text="Create New Trip"
               onClick={() => navigate('/create-journal-entry')}
               variant="primary"
               icon={<PlusIcon className="h-5 w-5" />}
             />
           </div>
+          <form onSubmit={handleSubmit} className="bg-white bg-opacity-10 backdrop-blur-md p-6 rounded-lg shadow-lg mb-8">
+            <h2 className="text-2xl font-bold mb-4">Plan a New Trip</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input
+                type="text"
+                name="from"
+                value={newTrip.from}
+                onChange={handleInputChange}
+                placeholder="From"
+                className="w-full px-4 py-2 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+              <input
+                type="text"
+                name="to"
+                value={newTrip.to}
+                onChange={handleInputChange}
+                placeholder="To"
+                className="w-full px-4 py-2 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+            <div className="mt-4">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  name="roundtrip"
+                  checked={newTrip.roundtrip}
+                  onChange={(e) => handleRoundTripToggle(e, e.target.checked)}
+                  className="hidden"
+                />
+                <span
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleRoundTripToggle(e, !newTrip.roundtrip);
+                  }}
+                  className={`h-6 w-6 flex items-center justify-center bg-gray-800 rounded-full border-2 border-gray-600 cursor-pointer ${newTrip.roundtrip ? 'bg-indigo-600 border-indigo-600' : ''}`}
+                >
+                  {newTrip.roundtrip && <CheckIcon className="h-4 w-4 text-white" />}
+                </span>
+                <span className="ml-2 text-white">Round Trip</span>
+              </label>
+            </div>
+            <div className="mt-4">
+              <label className="block mb-2">Number of Days</label>
+              <div className="flex items-center bg-gray-800 rounded-full p-2 w-32">
+                <button
+                  onClick={(e) => handleDaysChange(e, false)}
+                  className="px-3 py-1 text-white hover:text-indigo-300 focus:outline-none"
+                >
+                  <MinusIcon className="h-5 w-5" />
+                </button>
+                <span className="flex-1 text-center text-white">{newTrip.days}</span>
+                <button
+                  onClick={(e) => handleDaysChange(e, true)}
+                  className="px-3 py-1 text-white hover:text-indigo-300 focus:outline-none"
+                >
+                  <PlusIcon className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+            <div className="mt-4">
+              <label className="block mb-2">Interests</label>
+              <div className="flex flex-wrap gap-4">
+                {['adventure', 'food', 'culture', 'sightseeing'].map((interest) => (
+                  <label key={interest} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      name="interests"
+                      value={interest}
+                      checked={newTrip.interests.includes(interest)}
+                      onChange={handleInputChange}
+                      className="mr-2"
+                    />
+                    {interest.charAt(0).toUpperCase() + interest.slice(1)}
+                  </label>
+                ))}
+              </div>
+            </div>
+            <Button
+              text="Add Trip"
+              type="submit"
+              variant="primary"
+              className="mt-4"
+            />
+          </form>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {dummyEntries.map((entry) => (
+            {trips.map((trip) => (
               <div
-                key={entry.id}
+                key={trip.id}
                 className="bg-white bg-opacity-10 backdrop-blur-md p-4 rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-2 hover:scale-105 transition-transform transition-shadow duration-300 cursor-pointer"
-                onClick={() => setSelectedEntry(entry)}
+                onClick={() => {
+                  setSelectedTrip(trip);
+                  setSelectedDay(null); // Reset day selection
+                }}
               >
-                <h3 className="text-xl font-semibold">{entry.title}</h3>
-                <p className="text-gray-300 text-sm">{new Date(entry.createdAt).toLocaleDateString()}</p>
+                <h3 className="text-xl font-semibold">{trip.from} to {trip.to}</h3>
+                <p className="text-gray-300 text-sm">{new Date(trip.createdAt).toLocaleDateString()}</p>
+                <p className="text-gray-400 text-sm">Days: {trip.days}, Distance: {trip.distanceKm} km</p>
+                <p className="text-gray-400 text-sm">Interests: {trip.interests.join(', ')}</p>
               </div>
             ))}
           </div>
-          {selectedEntry && (
+          {selectedTrip && (
             <div className="flex flex-col md:flex-row gap-6">
               <div className="md:w-1/2 p-6 bg-white bg-opacity-10 backdrop-blur-md rounded-lg shadow-lg">
-                <h3 className="text-2xl font-bold mb-2">{selectedEntry.title}</h3>
-                <p className="text-gray-300 mb-2">Created: {new Date(selectedEntry.createdAt).toLocaleDateString()}</p>
-                <p className="mb-2">{selectedEntry.content}</p>
-                <p className="text-sm text-gray-400">Location: {selectedEntry.location.coordinates.join(', ')}</p>
-                <p className="text-sm text-gray-400 mt-4">AI Summary: {selectedEntry.aiSummary}</p>
+                <h3 className="text-2xl font-bold mb-2">{selectedTrip.from} to {selectedTrip.to}</h3>
+                <div className="space-y-4">
+                  {getTripDays(selectedTrip).map((day) => (
+                    <div
+                      key={day.dayNumber}
+                      className="p-4 bg-gray-800 bg-opacity-20 rounded-lg cursor-pointer hover:bg-opacity-30"
+                      onClick={() => setSelectedDay(day.dayNumber === selectedDay?.dayNumber ? null : day)}
+                    >
+                      <h4 className="text-lg font-semibold">Day {day.dayNumber}</h4>
+                      {selectedDay && selectedDay.dayNumber === day.dayNumber && (
+                        <div className="mt-2 space-y-2">
+                          <p>Start: {day.start}</p>
+                          <p>End: {day.end}</p>
+                          <p>Distance: {day.distanceKm.toFixed(1)} km</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
               <div className="md:w-1/2 p-6 bg-white bg-opacity-10 backdrop-blur-md rounded-lg shadow-lg">
-                <div className="h-72 w-full mb-4 rounded overflow-hidden">
-                  <MapContainer
-                    center={[selectedEntry.location.coordinates[0], selectedEntry.location.coordinates[1]] as [number, number]}
-                    zoom={13}
-                    style={{ height: '100%', width: '100%' }}
-                  >
-                    <TileLayer
-                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                      attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    />
-                    <Marker position={[selectedEntry.location.coordinates[0], selectedEntry.location.coordinates[1]] as [number, number]}>
-                      <Popup>{selectedEntry.title}</Popup>
-                    </Marker>
-                  </MapContainer>
-                </div>
-                <img src={selectedEntry.photoUrl} alt={selectedEntry.title} className="w-full object-contain max-h-64 rounded" />
+                {selectedDay && (
+                  <div className="h-72 w-full mb-4 rounded overflow-hidden">
+                    <MapContainer
+                      center={selectedDay.coordinates}
+                      zoom={10}
+                      style={{ height: '100%', width: '100%' }}
+                    >
+                      <TileLayer
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                      />
+                      <Marker position={selectedDay.coordinates}>
+                        <Popup>Day {selectedDay.dayNumber} Midpoint</Popup>
+                      </Marker>
+                    </MapContainer>
+                  </div>
+                )}
               </div>
             </div>
           )}
