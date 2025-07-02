@@ -143,11 +143,10 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-blue-900 animate-gradient-x text-white">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-blue-900 animate-gradient-x text-white relative">
       <Header />
       <main className="pt-24 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Removed Create New Trip button */}
           <form onSubmit={handleSubmit} className="bg-white bg-opacity-10 backdrop-blur-md p-6 rounded-lg shadow-lg mb-8">
             <h2 className="text-2xl font-bold mb-4">Plan a New Trip</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -222,11 +221,10 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
             <Button
-              text={loading ? undefined : 'Generate Your Trip Plan'}
-              icon={loading ? <CogIcon className="h-5 w-5 animate-spin" /> : undefined}
+              text="Generate Your Trip Plan"
               type="submit"
               variant="primary"
-              className="mt-4 rounded-full" // Changed to rounded-full
+              className="mt-4 rounded-full"
               disabled={loading}
             />
           </form>
@@ -293,6 +291,11 @@ const Dashboard: React.FC = () => {
           )}
         </div>
       </main>
+      {loading && (
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+          <CogIcon className="h-12 w-12 text-white animate-spin" />
+        </div>
+      )}
     </div>
   );
 };
