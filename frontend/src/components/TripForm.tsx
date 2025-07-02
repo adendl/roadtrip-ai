@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import Button from './Button';
 import { PlusIcon, MinusIcon, CheckIcon, CogIcon } from '@heroicons/react/24/outline';
+import { validateTripForm } from '../utils/TripFormValidation';
 
 interface Trip {
   id: number;
@@ -25,11 +26,20 @@ interface TripFormProps {
 }
 
 const TripForm: React.FC<TripFormProps> = ({ newTrip, onInputChange, onDaysChange, onRoundTripToggle, onSubmit, loading, setError, error }) => {
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setValidationErrors([]); // Clear previous errors on new submission attempt
     const token = localStorage.getItem('token');
     if (!token) {
       setError('No JWT token found. Please log in again.');
+      return;
+    }
+
+    const { isValid, errors } = validateTripForm(newTrip);
+    if (!isValid) {
+      setValidationErrors(errors); // Set errors only on submit failure
       return;
     }
 
@@ -64,6 +74,10 @@ const TripForm: React.FC<TripFormProps> = ({ newTrip, onInputChange, onDaysChang
     }
   };
 
+  const isFormValid = useCallback(() => {
+    return newTrip.from.trim().length > 0 && newTrip.to.trim().length > 0 && newTrip.from.length <= 20 && newTrip.to.length <= 20;
+  }, [newTrip]);
+
   return (
     <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md mb-8 border border-gray-200">
       <h2 className="text-2xl font-bold mb-4 text-gray-800 font-montserrat">Plan a New Trip</h2>
@@ -85,13 +99,20 @@ const TripForm: React.FC<TripFormProps> = ({ newTrip, onInputChange, onDaysChang
           className="w-full px-4 py-2 bg-white border border-gray-300 text-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 font-roboto"
         />
       </div>
+      {validationErrors.length > 0 && (
+        <div className="text-red-600 text-sm mt-2">
+          {validationErrors.map((error, index) => (
+            <p key={index}>{error}</p>
+          ))}
+        </div>
+      )}
       <div className="mt-4">
         <label className="flex items-center">
           <input
             type="checkbox"
             name="roundtrip"
             checked={newTrip.roundtrip}
-            onChange={onRoundTripToggle}
+            onChange={onInputChange}
             className="hidden"
           />
           <span
@@ -140,14 +161,16 @@ const TripForm: React.FC<TripFormProps> = ({ newTrip, onInputChange, onDaysChang
           ))}
         </div>
       </div>
-      <Button
-        text={loading ? undefined : 'Generate Your Trip Plan'}
-        type="submit"
-        variant="primary"
-        className="mt-4 w-auto px-6 py-2 bg-indigo-600 text-white rounded-full shadow-md hover:bg-indigo-700 transition-all duration-300"
-        disabled={loading}
-        icon={loading ? <CogIcon className="h-5 w-5 animate-spin" /> : undefined}
-      />
+      <div className="mt-6">
+        <Button
+          text={loading ? undefined : 'Generate Your Trip Plan'}
+          type="submit"
+          variant="primary"
+          className="mt-4 px-6 py-2 text-lg font-roboto bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 rounded-full shadow-md hover:shadow-lg transition-all duration-300"
+          disabled={loading || !isFormValid()}
+          icon={loading ? <CogIcon className="h-5 w-5 animate-spin" /> : undefined}
+        />
+      </div>
       {error && <p className="text-red-600 text-center mt-2">{error}</p>}
     </form>
   );
