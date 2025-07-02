@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
-import { PlusIcon, MinusIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, MinusIcon, CheckIcon, CogIcon } from '@heroicons/react/24/outline';
 import Header from '../components/Header';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css'; // Import Leaflet CSS
-import L from 'leaflet'; // Import Leaflet for type safety
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
 
 interface Trip {
   id: number;
@@ -15,7 +15,7 @@ interface Trip {
   roundtrip: boolean;
   days: number;
   interests: string[];
-  distanceKm: number; // Total distance in kilometers
+  distanceKm: number;
   createdAt: string;
 }
 
@@ -71,6 +71,7 @@ const Dashboard: React.FC = () => {
       createdAt: '2025-07-01T10:00:00Z',
     },
   ]);
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type, checked } = e.target as HTMLInputElement;
@@ -91,32 +92,36 @@ const Dashboard: React.FC = () => {
   };
 
   const handleDaysChange = (e: React.MouseEvent, increment: boolean) => {
-    e.preventDefault(); // Prevent form submission
+    e.preventDefault();
     setNewTrip((prev) => ({
       ...prev,
       days: Math.max(1, prev.days + (increment ? 1 : -1)),
     }));
   };
 
-  const handleRoundTripToggle = (e: React.MouseEvent, checked: boolean) => {
-    e.preventDefault(); // Prevent form submission
-    setNewTrip((prev) => ({ ...prev, roundtrip: checked }));
+  const handleRoundTripToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setNewTrip((prev) => ({ ...prev, roundtrip: !prev.roundtrip }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setTrips((prev) => [...prev, { ...newTrip, id: Date.now(), distanceKm: 500 }]); // Mock distance
-    setNewTrip((prev) => ({
-      ...prev,
-      id: Date.now(),
-      from: '',
-      to: '',
-      roundtrip: false,
-      days: 1,
-      interests: [],
-      distanceKm: 0,
-      createdAt: new Date().toISOString(),
-    }));
+    setLoading(true);
+    setTimeout(() => {
+      setTrips((prev) => [...prev, { ...newTrip, id: Date.now(), distanceKm: 500 }]);
+      setNewTrip((prev) => ({
+        ...prev,
+        id: Date.now(),
+        from: '',
+        to: '',
+        roundtrip: false,
+        days: 1,
+        interests: [],
+        distanceKm: 0,
+        createdAt: new Date().toISOString(),
+      }));
+      setLoading(false);
+    }, 1000);
   };
 
   const getTripDays = (trip: Trip): DayDetails[] => {
@@ -142,14 +147,7 @@ const Dashboard: React.FC = () => {
       <Header />
       <main className="pt-24 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-8">
-            <Button
-              text="Create New Trip"
-              onClick={() => navigate('/create-journal-entry')}
-              variant="primary"
-              icon={<PlusIcon className="h-5 w-5" />}
-            />
-          </div>
+          {/* Removed Create New Trip button */}
           <form onSubmit={handleSubmit} className="bg-white bg-opacity-10 backdrop-blur-md p-6 rounded-lg shadow-lg mb-8">
             <h2 className="text-2xl font-bold mb-4">Plan a New Trip</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -176,14 +174,10 @@ const Dashboard: React.FC = () => {
                   type="checkbox"
                   name="roundtrip"
                   checked={newTrip.roundtrip}
-                  onChange={(e) => handleRoundTripToggle(e, e.target.checked)}
                   className="hidden"
                 />
                 <span
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleRoundTripToggle(e, !newTrip.roundtrip);
-                  }}
+                  onClick={handleRoundTripToggle}
                   className={`h-6 w-6 flex items-center justify-center bg-gray-800 rounded-full border-2 border-gray-600 cursor-pointer ${newTrip.roundtrip ? 'bg-indigo-600 border-indigo-600' : ''}`}
                 >
                   {newTrip.roundtrip && <CheckIcon className="h-4 w-4 text-white" />}
@@ -228,10 +222,12 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
             <Button
-              text="Add Trip"
+              text={loading ? undefined : 'Generate Your Trip Plan'}
+              icon={loading ? <CogIcon className="h-5 w-5 animate-spin" /> : undefined}
               type="submit"
               variant="primary"
-              className="mt-4"
+              className="mt-4 rounded-full" // Changed to rounded-full
+              disabled={loading}
             />
           </form>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
@@ -241,7 +237,7 @@ const Dashboard: React.FC = () => {
                 className="bg-white bg-opacity-10 backdrop-blur-md p-4 rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-2 hover:scale-105 transition-transform transition-shadow duration-300 cursor-pointer"
                 onClick={() => {
                   setSelectedTrip(trip);
-                  setSelectedDay(null); // Reset day selection
+                  setSelectedDay(null);
                 }}
               >
                 <h3 className="text-xl font-semibold">{trip.from} to {trip.to}</h3>

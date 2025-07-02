@@ -1,27 +1,28 @@
 import React from 'react';
 
 interface ButtonProps {
-  text: string;
-  onClick: (e: React.MouseEvent) => void; // Updated to accept MouseEvent
-  variant?: 'primary' | 'secondary';
+  text?: string;
   icon?: React.ReactNode;
+  onClick?: (e: React.MouseEvent) => void;
+  variant: 'primary' | 'secondary';
+  className?: string;
+  type?: 'button' | 'submit' | 'reset';
+  disabled?: boolean;
 }
 
-const Button: React.FC<ButtonProps> = ({ text, onClick, variant = 'primary', icon }) => {
-  const baseStyles = 'px-6 py-3 rounded-full text-white font-semibold focus:outline-none transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5';
-  const variantStyles = variant === 'primary'
-    ? 'bg-indigo-600 hover:bg-indigo-700'
-    : 'bg-gray-600 hover:bg-gray-700';
+const Button: React.FC<ButtonProps> = ({ text, icon, onClick, variant, className, type = 'button', disabled }) => {
+  const baseStyles = 'px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-opacity-50';
+  const variantStyles = variant === 'primary' ? 'bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500' : 'bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500';
 
   return (
     <button
-      className={`${baseStyles} ${variantStyles}`}
+      type={type}
       onClick={onClick}
+      className={`${baseStyles} ${variantStyles} ${className || ''}`}
+      disabled={disabled}
     >
-      <span className="flex items-center justify-center gap-2">
-        {icon && icon}
-        {text}
-      </span>
+      {icon && <span className="mr-2">{icon}</span>}
+      {text}
     </button>
   );
 };
