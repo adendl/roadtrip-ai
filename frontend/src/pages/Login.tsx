@@ -48,7 +48,7 @@ const Login: React.FC = () => {
           transition={{ duration: 0.5 }}
           className="bg-white bg-opacity-80 p-8 rounded-xl shadow-lg max-w-md w-full z-10"
         >
-          <h2 className="text-3xl font-bold text-gray-800 mb-6 font-montserrat">Login</h2>
+          <h2 className="text-3xl font-bold text-gray-800 mb-6 font-montserrat">Log in</h2>
           <div className="space-y-4">
             <input
               type="text"
