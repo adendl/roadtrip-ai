@@ -31,12 +31,26 @@ dependencies {
 	testCompileOnly 'org.projectlombok:lombok:1.18.34'
 	testAnnotationProcessor 'org.projectlombok:lombok:1.18.34'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	// Force jjwt dependencies at compile time
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
-	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
-	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.12.5'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.5'
 }
-
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+// Ensure clean build to avoid cached issues
+tasks.named('build') {
+	dependsOn 'clean'
+}
+
+// Force dependency resolution to avoid conflicts
+configurations.all {
+	resolutionStrategy {
+		force 'io.jsonwebtoken:jjwt-api:0.12.5'
+		force 'io.jsonwebtoken:jjwt-impl:0.12.5'
+		force 'io.jsonwebtoken:jjwt-jackson:0.12.5'
+	}
 }

@@ -19,13 +19,54 @@ interface TripFormProps {
   onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   onDaysChange: (increment: boolean) => void;
   onRoundTripToggle: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onSubmit: (e: React.FormEvent) => void;
+  onSubmit: (e: React.FormEvent, trip: Trip) => void;
   loading: boolean;
+  setError: (error: string | null) => void;
+  error: string | null;
 }
 
-const TripForm: React.FC<TripFormProps> = ({ newTrip, onInputChange, onDaysChange, onRoundTripToggle, onSubmit, loading }) => {
+const TripForm: React.FC<TripFormProps> = ({ newTrip, onInputChange, onDaysChange, onRoundTripToggle, onSubmit, loading, setError, error }) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setError('No JWT token found. Please log in again.');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:9090/api/trips/create', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fromCity: newTrip.from,
+          toCity: newTrip.to,
+          roundtrip: newTrip.roundtrip,
+          days: newTrip.days,
+          interests: newTrip.interests,
+          distanceKm: 500,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (data && data.tripId) {
+        onSubmit(e, { ...newTrip, ...data, createdAt: new Date().toISOString() });
+      }
+    } catch (error) {
+      console.error('Error creating trip:', error);
+      setError('Failed to create trip. Please try again or check your connection.');
+    }
+  };
+
   return (
-    <form onSubmit={onSubmit} className="bg-white bg-opacity-10 backdrop-blur-md p-6 rounded-lg shadow-lg mb-8">
+    <form onSubmit={handleSubmit} className="bg-white bg-opacity-10 backdrop-blur-md p-6 rounded-lg shadow-lg mb-8">
       <h2 className="text-2xl font-bold mb-4">Plan a New Trip</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <input
@@ -66,6 +107,7 @@ const TripForm: React.FC<TripFormProps> = ({ newTrip, onInputChange, onDaysChang
         <label className="block mb-2">Number of Days</label>
         <div className="flex items-center bg-gray-800 rounded-full p-2 w-32">
           <button
+            type="button"
             onClick={() => onDaysChange(false)}
             className="px-3 py-1 text-white hover:text-indigo-300 focus:outline-none"
           >
@@ -73,6 +115,7 @@ const TripForm: React.FC<TripFormProps> = ({ newTrip, onInputChange, onDaysChang
           </button>
           <span className="flex-1 text-center text-white">{newTrip.days}</span>
           <button
+            type="button"
             onClick={() => onDaysChange(true)}
             className="px-3 py-1 text-white hover:text-indigo-300 focus:outline-none"
           >
@@ -106,6 +149,7 @@ const TripForm: React.FC<TripFormProps> = ({ newTrip, onInputChange, onDaysChang
         disabled={loading}
         icon={loading ? <CogIcon className="h-5 w-5 animate-spin" /> : undefined}
       />
+      {error && <p className="text-red-400 text-center mt-2">{error}</p>}
     </form>
   );
 };

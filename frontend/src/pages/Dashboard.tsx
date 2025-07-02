@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from 'react';
+// src/pages/Dashboard.tsx
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import TripForm from '../components/TripForm';
 import TripCard from '../components/TripCard';
 import TripDetails from '../components/TripDetails';
-import DayDetails from '../components/DayDetails'; // Import remains unchanged
+import DayDetails from '../components/DayDetails';
 import { CogIcon } from '@heroicons/react/24/outline';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
-// Renamed interface to IDayDetails to avoid conflict
 interface Trip {
-  id: number;
+  id: number; // Updated to match backend tripId
   from: string;
   to: string;
   roundtrip: boolean;
@@ -23,7 +23,7 @@ interface Trip {
   createdAt: string;
 }
 
-interface IDayDetails { // Renamed from DayDetails
+interface IDayDetails {
   dayNumber: number;
   start: string;
   end: string;
@@ -42,9 +42,9 @@ const Dashboard: React.FC = () => {
   }, [isLoggedIn, token, navigate]);
 
   const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
-  const [selectedDay, setSelectedDay] = useState<IDayDetails | null>(null); // Updated to IDayDetails
+  const [selectedDay, setSelectedDay] = useState<IDayDetails | null>(null);
   const [newTrip, setNewTrip] = useState<Trip>({
-    id: Date.now(),
+    id: 0, // Initialize with 0, will be set by API
     from: '',
     to: '',
     roundtrip: false,
@@ -53,31 +53,59 @@ const Dashboard: React.FC = () => {
     distanceKm: 0,
     createdAt: new Date().toISOString(),
   });
-  const [trips, setTrips] = useState<Trip[]>([
-    {
-      id: 1,
-      from: 'Sydney, Australia',
-      to: 'Melbourne, Australia',
-      roundtrip: false,
-      days: 3,
-      interests: ['adventure', 'food'],
-      distanceKm: 878,
-      createdAt: '2025-07-01T09:00:00Z',
-    },
-    {
-      id: 2,
-      from: 'Tokyo, Japan',
-      to: 'Osaka, Japan',
-      roundtrip: true,
-      days: 2,
-      interests: ['culture', 'sightseeing'],
-      distanceKm: 554,
-      createdAt: '2025-07-01T10:00:00Z',
-    },
-  ]);
+  const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  // Fetch user trips on mount
+  useEffect(() => {
+    const fetchUserTrips = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('No JWT token found. Please log in again.');
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const response = await fetch('http://localhost:9090/api/trips/user', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Fetched Trips Data:', data); // Debug API response
+        // Map API response to Trip interface, assuming tripId is returned
+        const mappedTrips: Trip[] = data.map((item: any) => ({
+          id: item.tripId || item.id || 0, // Fallback to id or 0 if tripId is missing
+          from: item.fromCity || item.from || 'Unknown', // Fallback to fromCity or default
+          to: item.toCity || item.to || 'Unknown', // Fallback to toCity or default
+          roundtrip: item.roundtrip || false,
+          days: item.days || 1,
+          interests: item.interests || [],
+          distanceKm: item.distanceKm || 0,
+          createdAt: item.createdAt || new Date().toISOString(),
+        }));
+        setTrips(mappedTrips);
+      } catch (error) {
+        console.error('Error fetching user trips:', error);
+        setError('Failed to load user trips. Please try again or check your connection.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserTrips();
+  }, []);
+
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type, checked } = e.target as HTMLInputElement;
     setNewTrip((prev) => {
       if (name === 'roundtrip') {
@@ -93,44 +121,47 @@ const Dashboard: React.FC = () => {
         return { ...prev, [name]: value };
       }
     });
-  };
+    console.log('Input Changed - New Trip:', newTrip);
+  }, []);
 
-  const handleDaysChange = (increment: boolean) => {
+  const handleDaysChange = useCallback((increment: boolean) => {
     setNewTrip((prev) => ({
       ...prev,
       days: Math.max(1, prev.days + (increment ? 1 : -1)),
     }));
-  };
+    console.log('Days Changed - New Trip:', newTrip, 'Trips:', trips);
+  }, []);
 
-  const handleRoundTripToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleRoundTripToggle = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setNewTrip((prev) => ({ ...prev, roundtrip: e.target.checked }));
-  };
+    console.log('Round Trip Toggled - New Trip:', newTrip);
+  }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = useCallback((e: React.FormEvent, trip: Trip) => {
     e.preventDefault();
-    setLoading(true);
-    setTimeout(() => {
-      setTrips((prev) => [...prev, { ...newTrip, id: Date.now(), distanceKm: 500 }]);
-      setNewTrip((prev) => ({
-        ...prev,
-        id: Date.now(),
-        from: '',
-        to: '',
-        roundtrip: false,
-        days: 1,
-        interests: [],
-        distanceKm: 0,
-        createdAt: new Date().toISOString(),
-      }));
-      setLoading(false);
-    }, 1000);
-  };
+    setLoading(false);
+    setTrips((prev) => [...prev, trip]);
+    setNewTrip((prev) => ({
+      ...prev,
+      id: 0, // Reset to 0, will be set by API
+      from: '',
+      to: '',
+      roundtrip: false,
+      days: 1,
+      interests: [],
+      distanceKm: 0,
+      createdAt: new Date().toISOString(),
+    }));
+    setError(null);
+    console.log('Submit - New Trip Added:', trip, 'Trips:', trips);
+  }, []);
 
-  const handleDeleteTrip = (id: number) => {
+  const handleDeleteTrip = useCallback((id: number) => {
     setTrips((prev) => prev.filter((trip) => trip.id !== id));
-  };
+    console.log('Delete - Trips:', trips);
+  }, []);
 
-  const getTripDays = (trip: Trip): IDayDetails[] => { // Updated to IDayDetails
+  const getTripDays = (trip: Trip): IDayDetails[] => {
     const totalDistance = trip.distanceKm;
     const distancePerDay = totalDistance / trip.days;
     const days: IDayDetails[] = [];
@@ -160,6 +191,8 @@ const Dashboard: React.FC = () => {
             onRoundTripToggle={handleRoundTripToggle}
             onSubmit={handleSubmit}
             loading={loading}
+            setError={setError}
+            error={error}
           />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {trips.map((trip) => (
@@ -171,6 +204,7 @@ const Dashboard: React.FC = () => {
                   setSelectedDay(null);
                 }}
                 onDelete={handleDeleteTrip}
+                setError={setError}
               />
             ))}
           </div>
@@ -192,6 +226,7 @@ const Dashboard: React.FC = () => {
               <CogIcon className="h-12 w-12 text-white animate-spin" />
             </div>
           )}
+          {error && <p className="text-red-400 text-center mt-4">{error}</p>}
         </div>
       </main>
     </div>
