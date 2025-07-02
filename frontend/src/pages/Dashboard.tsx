@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
-import { PlusIcon, MinusIcon, CheckIcon, CogIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, MinusIcon, CheckIcon, CogIcon, TrashIcon } from '@heroicons/react/24/outline';
 import Header from '../components/Header';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -124,6 +124,10 @@ const Dashboard: React.FC = () => {
     }, 1000);
   };
 
+  const handleDeleteTrip = (id: number) => {
+    setTrips((prev) => prev.filter((trip) => trip.id !== id));
+  };
+
   const getTripDays = (trip: Trip): DayDetails[] => {
     const totalDistance = trip.distanceKm;
     const distancePerDay = totalDistance / trip.days;
@@ -232,16 +236,33 @@ const Dashboard: React.FC = () => {
             {trips.map((trip) => (
               <div
                 key={trip.id}
-                className="bg-white bg-opacity-10 backdrop-blur-md p-4 rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-2 hover:scale-105 transition-transform transition-shadow duration-300 cursor-pointer"
-                onClick={() => {
-                  setSelectedTrip(trip);
-                  setSelectedDay(null);
-                }}
+                className="bg-white bg-opacity-10 backdrop-blur-md p-4 rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-2 hover:scale-105 transition-transform transition-shadow duration-300 cursor-pointer relative"
               >
-                <h3 className="text-xl font-semibold">{trip.from} to {trip.to}</h3>
-                <p className="text-gray-300 text-sm">{new Date(trip.createdAt).toLocaleDateString()}</p>
-                <p className="text-gray-400 text-sm">Days: {trip.days}, Distance: {trip.distanceKm} km</p>
-                <p className="text-gray-400 text-sm">Interests: {trip.interests.join(', ')}</p>
+                <div
+                  className="flex justify-between items-start"
+                  onClick={(e) => {
+                    if (!(e.target as HTMLElement).closest('button')) {
+                      setSelectedTrip(trip);
+                      setSelectedDay(null);
+                    }
+                  }}
+                >
+                  <div>
+                    <h3 className="text-xl font-semibold">{trip.from} to {trip.to}</h3>
+                    <p className="text-gray-300 text-sm">{new Date(trip.createdAt).toLocaleDateString()}</p>
+                    <p className="text-gray-400 text-sm">Days: {trip.days}, Distance: {trip.distanceKm} km</p>
+                    <p className="text-gray-400 text-sm">Interests: {trip.interests.join(', ')}</p>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteTrip(trip.id);
+                    }}
+                    className="text-red-500 hover:text-red-700 focus:outline-none"
+                  >
+                    <TrashIcon className="h-5 w-5" />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
