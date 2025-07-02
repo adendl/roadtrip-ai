@@ -1,3 +1,4 @@
+// src/main/java/com/adendl/traveljournalai/controller/UserController.java
 package com.adendl.traveljournalai.controller;
 
 import com.adendl.traveljournalai.config.JwtConfig;
@@ -40,10 +41,10 @@ public class UserController {
         User user = userService.authenticateUser(loginDTO.getUsername(), loginDTO.getPassword());
         SecretKey key = Keys.hmacShaKeyFor(jwtConfig.getSecretKey().getBytes(StandardCharsets.UTF_8));
         String token = Jwts.builder()
-                .subject(user.getUsername()) // Modern API: Set subject
-                .issuedAt(Date.from(Instant.now())) // Modern API: Set issued time
-                .expiration(Date.from(Instant.now().plus(24, ChronoUnit.HOURS))) // 24 hours expiry
-                .signWith(key) // Modern API: Sign with SecretKey
+                .subject(user.getUsername())
+                .issuedAt(Date.from(Instant.now()))
+                .expiration(Date.from(Instant.now().plus(24, ChronoUnit.HOURS)))
+                .signWith(key)
                 .compact();
         return ResponseEntity.ok(token);
     }

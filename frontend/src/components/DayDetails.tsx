@@ -16,7 +16,7 @@ interface DayDetailsProps {
   selectedDay: DayDetails;
 }
 
-const DayDetails: React.FC<DayDetailsProps> = ({ selectedDay }) => { // Added React.FC
+const DayDetails: React.FC<DayDetailsProps> = ({ selectedDay }) => {
   return (
     <div className="h-72 w-full mb-4 rounded overflow-hidden">
       <MapContainer
@@ -36,4 +36,4 @@ const DayDetails: React.FC<DayDetailsProps> = ({ selectedDay }) => { // Added Re
   );
 };
 
-export default DayDetails; // Ensure this is exported as a component
+export default DayDetails;
