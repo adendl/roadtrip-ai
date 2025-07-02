@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Button from '../components/Button';
 import Header from '../components/Header';
 import axios from 'axios';
+import { motion } from 'framer-motion';
 
 const SignUp: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -11,9 +12,7 @@ const SignUp: React.FC = () => {
   const [passwordError, setPasswordError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  // Email regex: basic format check (e.g., user@domain.com)
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  // Password regex: at least 12 characters
   const passwordRegex = /^.{12,}$/;
 
   const handleSubmit = async (e: React.MouseEvent) => {
@@ -22,7 +21,6 @@ const SignUp: React.FC = () => {
     setPasswordError('');
     setSuccessMessage('');
 
-    // Validation
     if (!emailRegex.test(email)) {
       setEmailError('Please enter a valid email address (e.g., user@domain.com)');
       return;
@@ -40,7 +38,6 @@ const SignUp: React.FC = () => {
       });
       console.log('Registration Success:', response.data);
       setSuccessMessage('Registration Successful!');
-      // Redirect to login page after a short delay
       setTimeout(() => {
         window.location.href = '/login';
       }, 2000);
@@ -51,57 +48,65 @@ const SignUp: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-blue-900 animate-gradient-x text-white">
-      <Header />
-      <main className="pt-24 pb-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-          <div className="bg-white bg-opacity-10 backdrop-blur-md p-8 rounded-xl shadow-lg max-w-md w-full">
-            <h2 className="text-3xl font-bold text-white mb-6">Sign Up</h2>
-            <div className="space-y-4">
-              <div>
-                <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Username"
-                  className="w-full px-4 py-2 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-              <div>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Email"
-                  className="w-full px-4 py-2 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-                {emailError && <p className="text-red-400 text-sm mt-1">{emailError}</p>}
-              </div>
-              <div>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Password"
-                  className="w-full px-4 py-2 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-                {passwordError && <p className="text-red-400 text-sm mt-1">{passwordError}</p>}
-              </div>
-              <Button
-                text="Sign Up"
-                onClick={handleSubmit}
-                variant="primary"
+    <div className="min-h-screen relative">
+      <Header className="bg-gray-700 bg-opacity-70 border-b border-gray-600" /> {/* Updated to dark transparent with border */}
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=1421&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)', filter: 'blur(5px)' }}
+      ></div>
+      <main className="min-h-screen flex items-center justify-center pt-24 pb-12">
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="bg-white bg-opacity-80 p-8 rounded-xl shadow-lg max-w-md w-full z-10"
+        >
+          <h2 className="text-3xl font-bold text-gray-800 mb-6 font-montserrat">Sign Up</h2>
+          <div className="space-y-4">
+            <div>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Username"
+                className="w-full px-4 py-2 bg-gray-100 text-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 font-roboto"
               />
-              {successMessage && <p className="text-green-400 text-center mt-4">{successMessage}</p>}
             </div>
-            <p className="mt-4 text-center text-gray-300">
-              Already have an account?{' '}
-              <a href="/login" className="text-indigo-300 hover:text-indigo-400">
-                Login
-              </a>
-            </p>
+            <div>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Email"
+                className="w-full px-4 py-2 bg-gray-100 text-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 font-roboto"
+              />
+              {emailError && <p className="text-red-600 text-sm mt-1">{emailError}</p>}
+            </div>
+            <div>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password"
+                className="w-full px-4 py-2 bg-gray-100 text-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 font-roboto"
+              />
+              {passwordError && <p className="text-red-600 text-sm mt-1">{passwordError}</p>}
+            </div>
+            <Button
+              text="Sign Up"
+              onClick={handleSubmit}
+              variant="primary"
+              className="w-full bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 rounded-full shadow-md hover:shadow-lg transition-all duration-300"
+            />
+            {successMessage && <p className="text-green-600 text-center mt-4">{successMessage}</p>}
           </div>
-        </div>
+          <p className="mt-4 text-center text-gray-600">
+            Already have an account?{' '}
+            <a href="/login" className="text-indigo-600 hover:text-indigo-700">
+              Login
+            </a>
+          </p>
+        </motion.div>
       </main>
     </div>
   );

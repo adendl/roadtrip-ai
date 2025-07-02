@@ -3,7 +3,11 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { UserCircleIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  className?: string; // Optional className prop
+}
+
+const Header: React.FC<HeaderProps> = ({ className }) => {
   const { isLoggedIn, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -11,7 +15,7 @@ const Header: React.FC = () => {
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   return (
-    <header className="fixed w-full bg-transparent backdrop-blur-md bg-opacity-0 z-50"> {/* Adjusted bg-opacity-0 for full transparency */}
+    <header className={`fixed w-full bg-gray-600 bg-opacity-70 backdrop-blur-md z-50 ${className || ''}`}> {/* Changed to dark transparent */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
         <div className="text-2xl font-bold text-white"><a href="/">Roadtrip.ai</a></div>
         <nav className="flex items-center space-x-6">
