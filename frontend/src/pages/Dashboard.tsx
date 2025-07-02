@@ -1,15 +1,19 @@
-import React, { useState, useEffect } from 'react';
+// src/pages/Dashboard.tsx
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import Button from '../components/Button';
-import { PlusIcon, MinusIcon, CheckIcon, CogIcon, TrashIcon } from '@heroicons/react/24/outline';
 import Header from '../components/Header';
+import TripForm from '../components/TripForm';
+import TripCard from '../components/TripCard';
+import TripDetails from '../components/TripDetails';
+import DayDetails from '../components/DayDetails';
+import { CogIcon } from '@heroicons/react/24/outline';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
 interface Trip {
-  id: number;
+  id: number; // Updated to match backend tripId
   from: string;
   to: string;
   roundtrip: boolean;
@@ -19,7 +23,7 @@ interface Trip {
   createdAt: string;
 }
 
-interface DayDetails {
+interface IDayDetails {
   dayNumber: number;
   start: string;
   end: string;
@@ -38,9 +42,9 @@ const Dashboard: React.FC = () => {
   }, [isLoggedIn, token, navigate]);
 
   const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
-  const [selectedDay, setSelectedDay] = useState<DayDetails | null>(null);
+  const [selectedDay, setSelectedDay] = useState<IDayDetails | null>(null);
   const [newTrip, setNewTrip] = useState<Trip>({
-    id: Date.now(),
+    id: 0, // Initialize with 0, will be set by API
     from: '',
     to: '',
     roundtrip: false,
@@ -49,31 +53,59 @@ const Dashboard: React.FC = () => {
     distanceKm: 0,
     createdAt: new Date().toISOString(),
   });
-  const [trips, setTrips] = useState<Trip[]>([
-    {
-      id: 1,
-      from: 'Sydney, Australia',
-      to: 'Melbourne, Australia',
-      roundtrip: false,
-      days: 3,
-      interests: ['adventure', 'food'],
-      distanceKm: 878,
-      createdAt: '2025-07-01T09:00:00Z',
-    },
-    {
-      id: 2,
-      from: 'Tokyo, Japan',
-      to: 'Osaka, Japan',
-      roundtrip: true,
-      days: 2,
-      interests: ['culture', 'sightseeing'],
-      distanceKm: 554,
-      createdAt: '2025-07-01T10:00:00Z',
-    },
-  ]);
+  const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  // Fetch user trips on mount
+  useEffect(() => {
+    const fetchUserTrips = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('No JWT token found. Please log in again.');
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const response = await fetch('http://localhost:9090/api/trips/user', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Fetched Trips Data:', data); // Debug API response
+        // Map API response to Trip interface, assuming tripId is returned
+        const mappedTrips: Trip[] = data.map((item: any) => ({
+          id: item.tripId || item.id || 0, // Fallback to id or 0 if tripId is missing
+          from: item.fromCity || item.from || 'Unknown', // Fallback to fromCity or default
+          to: item.toCity || item.to || 'Unknown', // Fallback to toCity or default
+          roundtrip: item.roundtrip || false,
+          days: item.days || 1,
+          interests: item.interests || [],
+          distanceKm: item.distanceKm || 0,
+          createdAt: item.createdAt || new Date().toISOString(),
+        }));
+        setTrips(mappedTrips);
+      } catch (error) {
+        console.error('Error fetching user trips:', error);
+        setError('Failed to load user trips. Please try again or check your connection.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserTrips();
+  }, []);
+
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type, checked } = e.target as HTMLInputElement;
     setNewTrip((prev) => {
       if (name === 'roundtrip') {
@@ -89,49 +121,50 @@ const Dashboard: React.FC = () => {
         return { ...prev, [name]: value };
       }
     });
-  };
+    console.log('Input Changed - New Trip:', newTrip);
+  }, []);
 
-  const handleDaysChange = (e: React.MouseEvent, increment: boolean) => {
-    e.preventDefault();
+  const handleDaysChange = useCallback((increment: boolean) => {
     setNewTrip((prev) => ({
       ...prev,
       days: Math.max(1, prev.days + (increment ? 1 : -1)),
     }));
-  };
+    console.log('Days Changed - New Trip:', newTrip, 'Trips:', trips);
+  }, []);
 
-  const handleRoundTripToggle = (e: React.MouseEvent) => {
+  const handleRoundTripToggle = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewTrip((prev) => ({ ...prev, roundtrip: e.target.checked }));
+    console.log('Round Trip Toggled - New Trip:', newTrip);
+  }, []);
+
+  const handleSubmit = useCallback((e: React.FormEvent, trip: Trip) => {
     e.preventDefault();
-    setNewTrip((prev) => ({ ...prev, roundtrip: !prev.roundtrip }));
-  };
+    setLoading(false);
+    setTrips((prev) => [...prev, trip]);
+    setNewTrip((prev) => ({
+      ...prev,
+      id: 0, // Reset to 0, will be set by API
+      from: '',
+      to: '',
+      roundtrip: false,
+      days: 1,
+      interests: [],
+      distanceKm: 0,
+      createdAt: new Date().toISOString(),
+    }));
+    setError(null);
+    console.log('Submit - New Trip Added:', trip, 'Trips:', trips);
+  }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setTimeout(() => {
-      setTrips((prev) => [...prev, { ...newTrip, id: Date.now(), distanceKm: 500 }]);
-      setNewTrip((prev) => ({
-        ...prev,
-        id: Date.now(),
-        from: '',
-        to: '',
-        roundtrip: false,
-        days: 1,
-        interests: [],
-        distanceKm: 0,
-        createdAt: new Date().toISOString(),
-      }));
-      setLoading(false);
-    }, 1000);
-  };
-
-  const handleDeleteTrip = (id: number) => {
+  const handleDeleteTrip = useCallback((id: number) => {
     setTrips((prev) => prev.filter((trip) => trip.id !== id));
-  };
+    console.log('Delete - Trips:', trips);
+  }, []);
 
-  const getTripDays = (trip: Trip): DayDetails[] => {
+  const getTripDays = (trip: Trip): IDayDetails[] => {
     const totalDistance = trip.distanceKm;
     const distancePerDay = totalDistance / trip.days;
-    const days: DayDetails[] = [];
+    const days: IDayDetails[] = [];
     for (let i = 1; i <= trip.days; i++) {
       days.push({
         dayNumber: i,
@@ -151,172 +184,51 @@ const Dashboard: React.FC = () => {
       <Header />
       <main className="pt-24 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <form onSubmit={handleSubmit} className="bg-white bg-opacity-10 backdrop-blur-md p-6 rounded-lg shadow-lg mb-8">
-            <h2 className="text-2xl font-bold mb-4">Plan a New Trip</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input
-                type="text"
-                name="from"
-                value={newTrip.from}
-                onChange={handleInputChange}
-                placeholder="From"
-                className="w-full px-4 py-2 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-              <input
-                type="text"
-                name="to"
-                value={newTrip.to}
-                onChange={handleInputChange}
-                placeholder="To"
-                className="w-full px-4 py-2 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-            <div className="mt-4">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  name="roundtrip"
-                  checked={newTrip.roundtrip}
-                  className="hidden"
-                />
-                <span
-                  onClick={handleRoundTripToggle}
-                  className={`h-6 w-6 flex items-center justify-center bg-gray-800 rounded-full border-2 border-gray-600 cursor-pointer ${newTrip.roundtrip ? 'bg-indigo-600 border-indigo-600' : ''}`}
-                >
-                  {newTrip.roundtrip && <CheckIcon className="h-4 w-4 text-white" />}
-                </span>
-                <span className="ml-2 text-white">Round Trip</span>
-              </label>
-            </div>
-            <div className="mt-4">
-              <label className="block mb-2">Number of Days</label>
-              <div className="flex items-center bg-gray-800 rounded-full p-2 w-32">
-                <button
-                  onClick={(e) => handleDaysChange(e, false)}
-                  className="px-3 py-1 text-white hover:text-indigo-300 focus:outline-none"
-                >
-                  <MinusIcon className="h-5 w-5" />
-                </button>
-                <span className="flex-1 text-center text-white">{newTrip.days}</span>
-                <button
-                  onClick={(e) => handleDaysChange(e, true)}
-                  className="px-3 py-1 text-white hover:text-indigo-300 focus:outline-none"
-                >
-                  <PlusIcon className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-            <div className="mt-4">
-              <label className="block mb-2">Interests</label>
-              <div className="flex flex-wrap gap-4">
-                {['adventure', 'food', 'culture', 'sightseeing'].map((interest) => (
-                  <label key={interest} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      name="interests"
-                      value={interest}
-                      checked={newTrip.interests.includes(interest)}
-                      onChange={handleInputChange}
-                      className="mr-2"
-                    />
-                    {interest.charAt(0).toUpperCase() + interest.slice(1)}
-                  </label>
-                ))}
-              </div>
-            </div>
-            <Button
-              text="Generate Your Trip Plan"
-              type="submit"
-              variant="primary"
-              className="mt-4 rounded-full"
-              disabled={loading}
-            />
-          </form>
+          <TripForm
+            newTrip={newTrip}
+            onInputChange={handleInputChange}
+            onDaysChange={handleDaysChange}
+            onRoundTripToggle={handleRoundTripToggle}
+            onSubmit={handleSubmit}
+            loading={loading}
+            setError={setError}
+            error={error}
+          />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {trips.map((trip) => (
-              <div
+              <TripCard
                 key={trip.id}
-                className="bg-white bg-opacity-10 backdrop-blur-md p-4 rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-2 hover:scale-105 transition-transform transition-shadow duration-300 cursor-pointer relative"
-              >
-                <div
-                  className="flex justify-between items-start"
-                  onClick={(e) => {
-                    if (!(e.target as HTMLElement).closest('button')) {
-                      setSelectedTrip(trip);
-                      setSelectedDay(null);
-                    }
-                  }}
-                >
-                  <div>
-                    <h3 className="text-xl font-semibold">{trip.from} to {trip.to}</h3>
-                    <p className="text-gray-300 text-sm">{new Date(trip.createdAt).toLocaleDateString()}</p>
-                    <p className="text-gray-400 text-sm">Days: {trip.days}, Distance: {trip.distanceKm} km</p>
-                    <p className="text-gray-400 text-sm">Interests: {trip.interests.join(', ')}</p>
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteTrip(trip.id);
-                    }}
-                    className="text-red-500 hover:text-red-700 focus:outline-none"
-                  >
-                    <TrashIcon className="h-5 w-5" />
-                  </button>
-                </div>
-              </div>
+                trip={trip}
+                onSelect={() => {
+                  setSelectedTrip(trip);
+                  setSelectedDay(null);
+                }}
+                onDelete={handleDeleteTrip}
+                setError={setError}
+              />
             ))}
           </div>
           {selectedTrip && (
             <div className="flex flex-col md:flex-row gap-6">
+              <TripDetails
+                selectedTrip={selectedTrip}
+                selectedDay={selectedDay}
+                setSelectedDay={setSelectedDay}
+                getTripDays={getTripDays}
+              />
               <div className="md:w-1/2 p-6 bg-white bg-opacity-10 backdrop-blur-md rounded-lg shadow-lg">
-                <h3 className="text-2xl font-bold mb-2">{selectedTrip.from} to {selectedTrip.to}</h3>
-                <div className="space-y-4">
-                  {getTripDays(selectedTrip).map((day) => (
-                    <div
-                      key={day.dayNumber}
-                      className="p-4 bg-gray-800 bg-opacity-20 rounded-lg cursor-pointer hover:bg-opacity-30"
-                      onClick={() => setSelectedDay(day.dayNumber === selectedDay?.dayNumber ? null : day)}
-                    >
-                      <h4 className="text-lg font-semibold">Day {day.dayNumber}</h4>
-                      {selectedDay && selectedDay.dayNumber === day.dayNumber && (
-                        <div className="mt-2 space-y-2">
-                          <p>Start: {day.start}</p>
-                          <p>End: {day.end}</p>
-                          <p>Distance: {day.distanceKm.toFixed(1)} km</p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="md:w-1/2 p-6 bg-white bg-opacity-10 backdrop-blur-md rounded-lg shadow-lg">
-                {selectedDay && (
-                  <div className="h-72 w-full mb-4 rounded overflow-hidden">
-                    <MapContainer
-                      center={selectedDay.coordinates}
-                      zoom={10}
-                      style={{ height: '100%', width: '100%' }}
-                    >
-                      <TileLayer
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                      />
-                      <Marker position={selectedDay.coordinates}>
-                        <Popup>Day {selectedDay.dayNumber} Midpoint</Popup>
-                      </Marker>
-                    </MapContainer>
-                  </div>
-                )}
+                {selectedDay && <DayDetails selectedDay={selectedDay} />}
               </div>
             </div>
           )}
+          {loading && (
+            <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+              <CogIcon className="h-12 w-12 text-white animate-spin" />
+            </div>
+          )}
+          {error && <p className="text-red-400 text-center mt-4">{error}</p>}
         </div>
       </main>
-      {loading && (
-        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
-          <CogIcon className="h-12 w-12 text-white animate-spin" />
-        </div>
-      )}
     </div>
   );
 };
