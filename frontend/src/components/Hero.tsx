@@ -36,7 +36,7 @@ const Hero: React.FC<HeroProps> = ({ title, description, children }) => {
           }
         `}
       </style>
-      <div className="px-4 py-20 sm:px-6 lg:px-8 bg-transparent relative h-[70vh] flex items-center justify-center bg-cover bg-center" style={{ backgroundImage: 'url(https://plus.unsplash.com/premium_photo-1661885251699-b242dd1e6e20?q=80&w=872&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)' }}>
+      <div className="px-4 py-20 sm:px-6 lg:px-8 bg-transparent relative h-[70vh] flex items-center justify-center bg-cover bg-center" style={{ backgroundImage: 'url(https://plus.unsplash.com/premium_photo-1676122796020-19c6df3a78b5?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)' }}>
         <div className="absolute inset-0 bg-black opacity-40"></div>
         <div className="relative z-10 text-center text-white px-4">
           <h1 className="text-5xl md:text-6xl font-extrabold mb-6 animate-fade-in text-white drop-shadow-lg font-montserrat">
