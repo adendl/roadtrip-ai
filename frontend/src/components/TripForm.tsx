@@ -1,4 +1,3 @@
-// src/components/TripForm.tsx
 import React from 'react';
 import Button from './Button';
 import { PlusIcon, MinusIcon, CheckIcon, CogIcon } from '@heroicons/react/24/outline';
@@ -66,8 +65,8 @@ const TripForm: React.FC<TripFormProps> = ({ newTrip, onInputChange, onDaysChang
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white bg-opacity-10 backdrop-blur-md p-6 rounded-lg shadow-lg mb-8">
-      <h2 className="text-2xl font-bold mb-4">Plan a New Trip</h2>
+    <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md mb-8 border border-gray-200">
+      <h2 className="text-2xl font-bold mb-4 text-gray-800 font-montserrat">Plan a New Trip</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <input
           type="text"
@@ -75,7 +74,7 @@ const TripForm: React.FC<TripFormProps> = ({ newTrip, onInputChange, onDaysChang
           value={newTrip.from}
           onChange={onInputChange}
           placeholder="From"
-          className="w-full px-4 py-2 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full px-4 py-2 bg-white border border-gray-300 text-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 font-roboto"
         />
         <input
           type="text"
@@ -83,7 +82,7 @@ const TripForm: React.FC<TripFormProps> = ({ newTrip, onInputChange, onDaysChang
           value={newTrip.to}
           onChange={onInputChange}
           placeholder="To"
-          className="w-full px-4 py-2 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full px-4 py-2 bg-white border border-gray-300 text-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 font-roboto"
         />
       </div>
       <div className="mt-4">
@@ -96,35 +95,35 @@ const TripForm: React.FC<TripFormProps> = ({ newTrip, onInputChange, onDaysChang
             className="hidden"
           />
           <span
-            className={`h-6 w-6 flex items-center justify-center bg-gray-800 rounded-full border-2 border-gray-600 cursor-pointer ${newTrip.roundtrip ? 'bg-indigo-600 border-indigo-600' : ''}`}
+            className={`h-6 w-6 flex items-center justify-center bg-white border border-gray-300 rounded-full cursor-pointer ${newTrip.roundtrip ? 'bg-indigo-600 border-indigo-600' : ''}`}
           >
-            {newTrip.roundtrip && <CheckIcon className="h-4 w-4 text-white" />}
+            {newTrip.roundtrip && <CheckIcon className="h-4 w-4 text-indigo-600" />}
           </span>
-          <span className="ml-2 text-white">Round Trip</span>
+          <span className="ml-2 text-gray-800">Round Trip</span>
         </label>
       </div>
       <div className="mt-4">
-        <label className="block mb-2">Number of Days</label>
-        <div className="flex items-center bg-gray-800 rounded-full p-2 w-32">
+        <label className="block mb-2 text-gray-800">Number of Days</label>
+        <div className="flex items-center bg-white border border-gray-300 rounded-full p-2 w-32">
           <button
             type="button"
             onClick={() => onDaysChange(false)}
-            className="px-3 py-1 text-white hover:text-indigo-300 focus:outline-none"
+            className="px-3 py-1 text-gray-800 hover:text-indigo-600 focus:outline-none"
           >
             <MinusIcon className="h-5 w-5" />
           </button>
-          <span className="flex-1 text-center text-white">{newTrip.days}</span>
+          <span className="flex-1 text-center text-gray-800">{newTrip.days}</span>
           <button
             type="button"
             onClick={() => onDaysChange(true)}
-            className="px-3 py-1 text-white hover:text-indigo-300 focus:outline-none"
+            className="px-3 py-1 text-gray-800 hover:text-indigo-600 focus:outline-none"
           >
             <PlusIcon className="h-5 w-5" />
           </button>
         </div>
       </div>
       <div className="mt-4">
-        <label className="block mb-2">Interests</label>
+        <label className="block mb-2 text-gray-800">Interests</label>
         <div className="flex flex-wrap gap-4">
           {['adventure', 'food', 'culture', 'sightseeing'].map((interest) => (
             <label key={interest} className="flex items-center">
@@ -145,11 +144,11 @@ const TripForm: React.FC<TripFormProps> = ({ newTrip, onInputChange, onDaysChang
         text={loading ? undefined : 'Generate Your Trip Plan'}
         type="submit"
         variant="primary"
-        className="mt-4 rounded-full"
+        className="mt-4 w-auto px-6 py-2 bg-indigo-600 text-white rounded-full shadow-md hover:bg-indigo-700 transition-all duration-300"
         disabled={loading}
         icon={loading ? <CogIcon className="h-5 w-5 animate-spin" /> : undefined}
       />
-      {error && <p className="text-red-400 text-center mt-2">{error}</p>}
+      {error && <p className="text-red-600 text-center mt-2">{error}</p>}
     </form>
   );
 };
