@@ -1,0 +1,24 @@
+/* src/styles/Hero.css */
+.hero {
+  perspective: 1px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: inherit;
+  transform: translateZ(-1px) scale(2);
+  z-index: -1;
+}
+.hero .animate-fade-in {
+  animation: fadeIn 1s ease-in;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

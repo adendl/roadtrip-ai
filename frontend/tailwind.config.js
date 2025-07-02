@@ -8,6 +8,13 @@ export default {
     extend: {
       animation: {
         'gradient-x': 'gradientX 15s ease infinite',
+        'fade-in': 'fadeIn 1s ease-in', // Added fade-in animation
+      },
+      keyframes: {
+        fadeIn: {
+          from: { opacity: 0 },
+          to: { opacity: 1 },
+        },
       },
     },
   },
