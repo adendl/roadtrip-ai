@@ -1,0 +1,13 @@
+.leaflet-popup-content-wrapper {
+  background-color: #1f2937; /* gray-800 */
+  color: white;
+  border-radius: 0.5rem;
+}
+
+.leaflet-popup-tip {
+  background-color: #1f2937;
+}
+
+.leaflet-popup-close-button {
+  color: white;
+}

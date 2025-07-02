@@ -1,4 +1,3 @@
-// src/pages/Dashboard.tsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -11,9 +10,11 @@ import { CogIcon } from '@heroicons/react/24/outline';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import { motion } from 'framer-motion';
+import '../styles/leaflet.css';
 
 interface Trip {
-  id: number; // Updated to match backend tripId
+  id: number;
   from: string;
   to: string;
   roundtrip: boolean;
@@ -44,7 +45,7 @@ const Dashboard: React.FC = () => {
   const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
   const [selectedDay, setSelectedDay] = useState<IDayDetails | null>(null);
   const [newTrip, setNewTrip] = useState<Trip>({
-    id: 0, // Initialize with 0, will be set by API
+    id: 0,
     from: '',
     to: '',
     roundtrip: false,
@@ -57,7 +58,6 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch user trips on mount
   useEffect(() => {
     const fetchUserTrips = async () => {
       const token = localStorage.getItem('token');
@@ -81,12 +81,10 @@ const Dashboard: React.FC = () => {
         }
 
         const data = await response.json();
-        console.log('Fetched Trips Data:', data); // Debug API response
-        // Map API response to Trip interface, assuming tripId is returned
         const mappedTrips: Trip[] = data.map((item: any) => ({
-          id: item.tripId || item.id || 0, // Fallback to id or 0 if tripId is missing
-          from: item.fromCity || item.from || 'Unknown', // Fallback to fromCity or default
-          to: item.toCity || item.to || 'Unknown', // Fallback to toCity or default
+          id: item.tripId || item.id || 0,
+          from: item.fromCity || item.from || 'Unknown',
+          to: item.toCity || item.to || 'Unknown',
           roundtrip: item.roundtrip || false,
           days: item.days || 1,
           interests: item.interests || [],
@@ -121,7 +119,6 @@ const Dashboard: React.FC = () => {
         return { ...prev, [name]: value };
       }
     });
-    console.log('Input Changed - New Trip:', newTrip);
   }, []);
 
   const handleDaysChange = useCallback((increment: boolean) => {
@@ -129,12 +126,10 @@ const Dashboard: React.FC = () => {
       ...prev,
       days: Math.max(1, prev.days + (increment ? 1 : -1)),
     }));
-    console.log('Days Changed - New Trip:', newTrip, 'Trips:', trips);
   }, []);
 
   const handleRoundTripToggle = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setNewTrip((prev) => ({ ...prev, roundtrip: e.target.checked }));
-    console.log('Round Trip Toggled - New Trip:', newTrip);
   }, []);
 
   const handleSubmit = useCallback((e: React.FormEvent, trip: Trip) => {
@@ -143,7 +138,7 @@ const Dashboard: React.FC = () => {
     setTrips((prev) => [...prev, trip]);
     setNewTrip((prev) => ({
       ...prev,
-      id: 0, // Reset to 0, will be set by API
+      id: 0,
       from: '',
       to: '',
       roundtrip: false,
@@ -153,12 +148,10 @@ const Dashboard: React.FC = () => {
       createdAt: new Date().toISOString(),
     }));
     setError(null);
-    console.log('Submit - New Trip Added:', trip, 'Trips:', trips);
   }, []);
 
   const handleDeleteTrip = useCallback((id: number) => {
     setTrips((prev) => prev.filter((trip) => trip.id !== id));
-    console.log('Delete - Trips:', trips);
   }, []);
 
   const getTripDays = (trip: Trip): IDayDetails[] => {
@@ -180,53 +173,71 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-blue-900 animate-gradient-x text-white relative">
+    <div className="min-h-screen bg-gray-50 text-gray-800 relative">
       <Header />
       <main className="pt-24 pb-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <TripForm
-            newTrip={newTrip}
-            onInputChange={handleInputChange}
-            onDaysChange={handleDaysChange}
-            onRoundTripToggle={handleRoundTripToggle}
-            onSubmit={handleSubmit}
-            loading={loading}
-            setError={setError}
-            error={error}
-          />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <TripForm
+              newTrip={newTrip}
+              onInputChange={handleInputChange}
+              onDaysChange={handleDaysChange}
+              onRoundTripToggle={handleRoundTripToggle}
+              onSubmit={handleSubmit}
+              loading={loading}
+              setError={setError}
+              error={error}
+            />
+          </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-10">
             {trips.map((trip) => (
-              <TripCard
+              <motion.div
                 key={trip.id}
-                trip={trip}
-                onSelect={() => {
-                  setSelectedTrip(trip);
-                  setSelectedDay(null);
-                }}
-                onDelete={handleDeleteTrip}
-                setError={setError}
-              />
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <TripCard
+                  trip={trip}
+                  onSelect={() => {
+                    setSelectedTrip(trip);
+                    setSelectedDay(null);
+                  }}
+                  onDelete={handleDeleteTrip}
+                  setError={setError}
+                />
+              </motion.div>
             ))}
           </div>
           {selectedTrip && (
-            <div className="flex flex-col md:flex-row gap-6">
-              <TripDetails
-                selectedTrip={selectedTrip}
-                selectedDay={selectedDay}
-                setSelectedDay={setSelectedDay}
-                getTripDays={getTripDays}
-              />
-              <div className="md:w-1/2 p-6 bg-white bg-opacity-10 backdrop-blur-md rounded-lg shadow-lg">
-                {selectedDay && <DayDetails selectedDay={selectedDay} />}
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="flex flex-col md:flex-row gap-8">
+                <TripDetails
+                  selectedTrip={selectedTrip}
+                  selectedDay={selectedDay}
+                  setSelectedDay={setSelectedDay}
+                  getTripDays={getTripDays}
+                />
+                <div className="md:w-1/2 p-6 bg-white rounded-lg shadow-md">
+                  {selectedDay && <DayDetails selectedDay={selectedDay} />}
+                </div>
               </div>
-            </div>
+            </motion.div>
           )}
           {loading && (
-            <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+            <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
               <CogIcon className="h-12 w-12 text-white animate-spin" />
             </div>
           )}
-          {error && <p className="text-red-400 text-center mt-4">{error}</p>}
+          {error && <p className="text-red-600 text-center mt-6">{error}</p>}
         </div>
       </main>
     </div>

@@ -1,124 +1,122 @@
 import React from 'react';
 import Button from '../components/Button';
-import Hero from '../components/Hero';
 import Header from '../components/Header';
-import Card from '../components/Card';
-import { CommandLineIcon } from '@heroicons/react/24/solid';
+import Hero from '../components/Hero';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import '../styles/Hero.css';
 
 const Home: React.FC = () => {
   const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-blue-900 animate-gradient-x text-white">
+    <div className="min-h-screen bg-gray-100 text-gray-800">
       <Header />
-      <main className="pt-24 pb-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center text-center">
-          <Hero
-            title="Plan Your Perfect Roadtrip"
-            description="Let Roadtrip.ai craft a personalised itinerary for your next adventure. Our AI optimises your route, suggests the best stops, and seamlessly integrates EV charging stations—making every journey smooth and sustainable. Start exploring today!"
-          />
-          <div className="mt-10 space-y-4 sm:space-y-0 sm:flex sm:space-x-6">
-            {!isLoggedIn ? (
-              <>
-                <Button
-                  text="Get Started"
-                  onClick={() => window.location.href = '/signup'}
-                  variant="primary"
-                />
-                <Button
-                  text="Login"
-                  onClick={() => window.location.href = '/login'}
-                  variant="secondary"
-                />
-              </>
-            ) : (
-              <Button
-                text="Plan Your Trip"
-                onClick={() => navigate('/dashboard')}
-                variant="primary"
-              />
-            )}
-          </div>
-
-          {/* Features Cards Section */}
-          <section id="features" className="mt-16 w-full">
-            <h2 className="text-3xl font-bold mb-8 text-center">Explore Our Features</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
-              {/* Card 1: Trip Planning */}
-              <Card
-                title="Trip Planning"
-                description="Easily create custom road trip itineraries with AI-driven route suggestions tailored to your preferences."
-                imageUrl="https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80"
-                altText="Trip Planning"
-                className="hover:-translate-y-2 hover:scale-105 transition-transform transition-shadow duration-300"
-              />
-
-              {/* Card 2: EV Charging Integration */}
-              <Card
-                title="EV Charging Integration"
-                description="Plan your route with conveniently located EV charging stations for a sustainable journey."
-                imageUrl="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80"
-                altText="EV Charging Integration"
-                className="hover:-translate-y-2 hover:scale-105 transition-transform transition-shadow duration-300"
-              />
-
-              {/* Card 3: Route Optimization */}
-              <Card
-                title="Route Optimization"
-                description="AI optimises your path to save time and fuel, suggesting the best stops along the way."
-                imageUrl="https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80"
-                altText="Route Optimization"
-                className="hover:-translate-y-2 hover:scale-105 transition-transform transition-shadow duration-300"
-              />
-
-              {/* Card 4: Activity Suggestions */}
-              <Card
-                title="Activity Suggestions"
-                description="Discover tailored activities like adventure, food, and sightseeing based on your interests."
-                imageUrl="https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80"
-                altText="Activity Suggestions"
-                className="hover:-translate-y-2 hover:scale-105 transition-transform transition-shadow duration-300"
-              />
-
-              {/* Card 5: Real-Time Updates */}
-              <Card
-                title="Real-Time Updates"
-                description="Get live traffic and weather updates to adjust your itinerary on the go."
-                imageUrl="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80"
-                altText="Real-Time Updates"
-                className="hover:-translate-y-2 hover:scale-105 transition-transform transition-shadow duration-300"
-              />
-
-              {/* Card 6: Trip Sharing */}
-              <Card
-                title="Trip Sharing"
-                description="Share your planned routes and itineraries with friends or save them privately."
-                imageUrl="https://images.unsplash.com/photo-1750801321932-3d3e3fcdfdcd?q=80&w=1740&auto=format&fit=crop&w=300&q=80&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                altText="Trip Sharing"
-                className="hover:-translate-y-2 hover:scale-105 transition-transform transition-shadow duration-300"
-              />
-            </div>
-          </section>
-        </div>
-      </main>
-      {/* Footer with GitHub Link */}
-      <footer className="w-full py-6 bg-gray-800 bg-opacity-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p>Read Source Code on GitHub</p>
-          <a
-            href="https://github.com/adendl/traveljournal-ai"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center bg-gradient-to-r from-indigo-500 to-blue-600 bg-clip-text text-transparent font-semibold text-lg hover:from-indigo-400 hover:to-blue-500 transition-all duration-300 transform hover:scale-105 px-4 py-2 rounded-full shadow-md hover:shadow-lg"
+      <main className="pb-12">
+        {/* Hero Section with Integrated CTA */}
+        <Hero
+          title="Plan Your Perfect Roadtrip"
+          description="Let Roadtrip.ai craft a personalised itinerary for your next adventure, with AI-driven routes and tailored suggestions."
+        >
+          <motion.section
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mt-8 text-center bg-gray-900 bg-opacity-50 p-6 rounded-xl shadow-lg"
           >
-            <CommandLineIcon className="h-6 w-6 mr-2 text-black" />
-            https://github.com/adendl/traveljournal-ai
-          </a>
-        </div>
-      </footer>
+            <h3 className="text-3xl font-bold mb-4 font-montserrat text-white">Ready for Your Adventure?</h3>
+            <p className="text-lg mb-6 font-roboto text-white">
+              {isLoggedIn
+                ? "Continue your journey with AI-powered planning."
+                : "Unlock your dream road trip with AI-powered planning. Sign up now and start today!"}
+            </p>
+            <Button
+              text={isLoggedIn ? "Plan Your Trip" : "Get Started"}
+              onClick={() => isLoggedIn ? navigate('/dashboard') : window.location.href = '/signup'}
+              variant="primary"
+              className="px-8 py-3 text-lg font-roboto bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 rounded-full shadow-md hover:shadow-lg transition-all duration-300"
+            />
+          </motion.section>
+        </Hero>
+
+        {/* Features Section */}
+        <motion.section
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16"
+        >
+          <h2 className="text-3xl font-bold mb-8 text-center font-montserrat">Explore Our Features</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="feature-item rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300">
+              <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Trip Planning" className="w-full h-48 object-cover" />
+              <div className="p-6">
+                <h3 className="text-2xl font-bold mb-2 font-montserrat">Trip Planning</h3>
+                <p className="text-gray-600 font-roboto">Easily create custom road trip itineraries with AI-driven route suggestions.</p>
+              </div>
+            </div>
+            <div className="feature-item rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300">
+              <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Activity Suggestions" className="w-full h-48 object-cover" />
+              <div className="p-6">
+                <h3 className="text-2xl font-bold mb-2 font-montserrat">Activity Suggestions</h3>
+                <p className="text-gray-600 font-roboto">Discover tailored activities like adventure, food, and sightseeing.</p>
+              </div>
+            </div>
+            <div className="feature-item rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300">
+              <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Route Optimization" className="w-full h-48 object-cover" />
+              <div className="p-6">
+                <h3 className="text-2xl font-bold mb-2 font-montserrat">Route Optimisation</h3>
+                <p className="text-gray-600 font-roboto">AI optimises your path to save time and fuel with the best stops.</p>
+              </div>
+            </div>
+          </div>
+        </motion.section>
+
+        {/* Newsletter Section */}
+        <motion.section
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-3xl mx-auto mt-16 px-4 sm:px-6 lg:px-8 bg-gray-200 rounded-xl p-8"
+        >
+          <h3 className="text-3xl font-bold mb-4 font-montserrat text-gray-900">Stay Updated</h3>
+          <p className="text-lg mb-6 font-roboto text-gray-700">Subscribe for the latest travel tips and AI-powered road trip updates!</p>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <input
+              type="email"
+              placeholder="Enter your email"
+              className="flex-1 px-4 py-3 bg-white text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-roboto"
+            />
+            <Button
+              text="Subscribe"
+              variant="primary"
+              className="px-6 py-3 text-lg font-roboto bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600 rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+            />
+          </div>
+        </motion.section>
+
+        {/* Testimonials Section */}
+        <motion.section
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-4xl mx-auto mt-16 px-4 sm:px-6 lg:px-8"
+        >
+          <h3 className="text-3xl font-bold mb-8 text-center font-montserrat">What Our Users Say</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <blockquote className="bg-white p-6 rounded-lg shadow-md">
+              <p className="text-gray-600 italic font-roboto">"Roadtrip.ai made planning my cross-country trip a breeze! The route suggestions were spot on."</p>
+              <span className="block mt-4 font-bold text-gray-900 font-montserrat">- Alex P.</span>
+            </blockquote>
+            <blockquote className="bg-white p-6 rounded-lg shadow-md">
+              <p className="text-gray-600 italic font-roboto">"Love the activity ideas—turned my weekend into an adventure!"</p>
+              <span className="block mt-4 font-bold text-gray-900 font-montserrat">- Sarah K.</span>
+            </blockquote>
+          </div>
+        </motion.section>
+      </main>
     </div>
   );
 };
