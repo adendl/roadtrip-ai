@@ -5,20 +5,15 @@ interface CardProps {
   description: string;
   imageUrl: string;
   altText: string;
+  className?: string;
 }
 
-const Card: React.FC<CardProps> = ({ title, description, imageUrl, altText }) => {
+const Card: React.FC<CardProps> = ({ title, description, imageUrl, altText, className }) => {
   return (
-    <div className="bg-white/10 backdrop-blur-md rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow hover:-translate-y-2 hover:scale-105 transition-transform transition-shadow duration-300">
-      <img
-        src={imageUrl}
-        alt={altText}
-        className="w-full h-48 object-cover rounded-t-lg"
-      />
-      <div className="p-4">
-        <h3 className="text-xl font-semibold text-white">{title}</h3>
-        <p className="text-gray-300 mt-2">{description}</p>
-      </div>
+    <div className={`bg-white bg-opacity-10 p-6 rounded-lg shadow-lg hover:shadow-xl ${className || ''}`}>
+      <img src={imageUrl} alt={altText} className="w-full h-32 object-cover rounded-t-lg" />
+      <h3 className="text-xl font-semibold mt-4 text-white">{title}</h3>
+      <p className="text-gray-300 mt-2">{description}</p>
     </div>
   );
 };

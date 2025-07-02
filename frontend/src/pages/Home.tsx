@@ -2,7 +2,7 @@ import React from 'react';
 import Button from '../components/Button';
 import Hero from '../components/Hero';
 import Header from '../components/Header';
-import Card from '../components/Card'; // Import the new Card component
+import Card from '../components/Card';
 import { CommandLineIcon } from '@heroicons/react/24/solid';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -65,7 +65,7 @@ const Home: React.FC = () => {
                 className="hover:-translate-y-2 hover:scale-105 transition-transform transition-shadow duration-300"
               />
 
-              {/* Card 3: Route Optimisation */}
+              {/* Card 3: Route Optimization */}
               <Card
                 title="Route Optimization"
                 description="AI optimises your path to save time and fuel, suggesting the best stops along the way."
