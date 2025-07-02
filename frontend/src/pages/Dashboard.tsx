@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import Button from '../components/Button';
-import { PlusIcon, MinusIcon, CheckIcon, CogIcon, TrashIcon } from '@heroicons/react/24/outline';
 import Header from '../components/Header';
+import TripForm from '../components/TripForm';
+import TripCard from '../components/TripCard';
+import TripDetails from '../components/TripDetails';
+import DayDetails from '../components/DayDetails'; // Import remains unchanged
+import { CogIcon } from '@heroicons/react/24/outline';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
+// Renamed interface to IDayDetails to avoid conflict
 interface Trip {
   id: number;
   from: string;
@@ -19,7 +23,7 @@ interface Trip {
   createdAt: string;
 }
 
-interface DayDetails {
+interface IDayDetails { // Renamed from DayDetails
   dayNumber: number;
   start: string;
   end: string;
@@ -38,7 +42,7 @@ const Dashboard: React.FC = () => {
   }, [isLoggedIn, token, navigate]);
 
   const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
-  const [selectedDay, setSelectedDay] = useState<DayDetails | null>(null);
+  const [selectedDay, setSelectedDay] = useState<IDayDetails | null>(null); // Updated to IDayDetails
   const [newTrip, setNewTrip] = useState<Trip>({
     id: Date.now(),
     from: '',
@@ -91,17 +95,15 @@ const Dashboard: React.FC = () => {
     });
   };
 
-  const handleDaysChange = (e: React.MouseEvent, increment: boolean) => {
-    e.preventDefault();
+  const handleDaysChange = (increment: boolean) => {
     setNewTrip((prev) => ({
       ...prev,
       days: Math.max(1, prev.days + (increment ? 1 : -1)),
     }));
   };
 
-  const handleRoundTripToggle = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setNewTrip((prev) => ({ ...prev, roundtrip: !prev.roundtrip }));
+  const handleRoundTripToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewTrip((prev) => ({ ...prev, roundtrip: e.target.checked }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -128,10 +130,10 @@ const Dashboard: React.FC = () => {
     setTrips((prev) => prev.filter((trip) => trip.id !== id));
   };
 
-  const getTripDays = (trip: Trip): DayDetails[] => {
+  const getTripDays = (trip: Trip): IDayDetails[] => { // Updated to IDayDetails
     const totalDistance = trip.distanceKm;
     const distancePerDay = totalDistance / trip.days;
-    const days: DayDetails[] = [];
+    const days: IDayDetails[] = [];
     for (let i = 1; i <= trip.days; i++) {
       days.push({
         dayNumber: i,
@@ -151,172 +153,47 @@ const Dashboard: React.FC = () => {
       <Header />
       <main className="pt-24 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <form onSubmit={handleSubmit} className="bg-white bg-opacity-10 backdrop-blur-md p-6 rounded-lg shadow-lg mb-8">
-            <h2 className="text-2xl font-bold mb-4">Plan a New Trip</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input
-                type="text"
-                name="from"
-                value={newTrip.from}
-                onChange={handleInputChange}
-                placeholder="From"
-                className="w-full px-4 py-2 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-              <input
-                type="text"
-                name="to"
-                value={newTrip.to}
-                onChange={handleInputChange}
-                placeholder="To"
-                className="w-full px-4 py-2 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-            <div className="mt-4">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  name="roundtrip"
-                  checked={newTrip.roundtrip}
-                  className="hidden"
-                />
-                <span
-                  onClick={handleRoundTripToggle}
-                  className={`h-6 w-6 flex items-center justify-center bg-gray-800 rounded-full border-2 border-gray-600 cursor-pointer ${newTrip.roundtrip ? 'bg-indigo-600 border-indigo-600' : ''}`}
-                >
-                  {newTrip.roundtrip && <CheckIcon className="h-4 w-4 text-white" />}
-                </span>
-                <span className="ml-2 text-white">Round Trip</span>
-              </label>
-            </div>
-            <div className="mt-4">
-              <label className="block mb-2">Number of Days</label>
-              <div className="flex items-center bg-gray-800 rounded-full p-2 w-32">
-                <button
-                  onClick={(e) => handleDaysChange(e, false)}
-                  className="px-3 py-1 text-white hover:text-indigo-300 focus:outline-none"
-                >
-                  <MinusIcon className="h-5 w-5" />
-                </button>
-                <span className="flex-1 text-center text-white">{newTrip.days}</span>
-                <button
-                  onClick={(e) => handleDaysChange(e, true)}
-                  className="px-3 py-1 text-white hover:text-indigo-300 focus:outline-none"
-                >
-                  <PlusIcon className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-            <div className="mt-4">
-              <label className="block mb-2">Interests</label>
-              <div className="flex flex-wrap gap-4">
-                {['adventure', 'food', 'culture', 'sightseeing'].map((interest) => (
-                  <label key={interest} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      name="interests"
-                      value={interest}
-                      checked={newTrip.interests.includes(interest)}
-                      onChange={handleInputChange}
-                      className="mr-2"
-                    />
-                    {interest.charAt(0).toUpperCase() + interest.slice(1)}
-                  </label>
-                ))}
-              </div>
-            </div>
-            <Button
-              text="Generate Your Trip Plan"
-              type="submit"
-              variant="primary"
-              className="mt-4 rounded-full"
-              disabled={loading}
-            />
-          </form>
+          <TripForm
+            newTrip={newTrip}
+            onInputChange={handleInputChange}
+            onDaysChange={handleDaysChange}
+            onRoundTripToggle={handleRoundTripToggle}
+            onSubmit={handleSubmit}
+            loading={loading}
+          />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {trips.map((trip) => (
-              <div
+              <TripCard
                 key={trip.id}
-                className="bg-white bg-opacity-10 backdrop-blur-md p-4 rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-2 hover:scale-105 transition-transform transition-shadow duration-300 cursor-pointer relative"
-              >
-                <div
-                  className="flex justify-between items-start"
-                  onClick={(e) => {
-                    if (!(e.target as HTMLElement).closest('button')) {
-                      setSelectedTrip(trip);
-                      setSelectedDay(null);
-                    }
-                  }}
-                >
-                  <div>
-                    <h3 className="text-xl font-semibold">{trip.from} to {trip.to}</h3>
-                    <p className="text-gray-300 text-sm">{new Date(trip.createdAt).toLocaleDateString()}</p>
-                    <p className="text-gray-400 text-sm">Days: {trip.days}, Distance: {trip.distanceKm} km</p>
-                    <p className="text-gray-400 text-sm">Interests: {trip.interests.join(', ')}</p>
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteTrip(trip.id);
-                    }}
-                    className="text-red-500 hover:text-red-700 focus:outline-none"
-                  >
-                    <TrashIcon className="h-5 w-5" />
-                  </button>
-                </div>
-              </div>
+                trip={trip}
+                onSelect={() => {
+                  setSelectedTrip(trip);
+                  setSelectedDay(null);
+                }}
+                onDelete={handleDeleteTrip}
+              />
             ))}
           </div>
           {selectedTrip && (
             <div className="flex flex-col md:flex-row gap-6">
+              <TripDetails
+                selectedTrip={selectedTrip}
+                selectedDay={selectedDay}
+                setSelectedDay={setSelectedDay}
+                getTripDays={getTripDays}
+              />
               <div className="md:w-1/2 p-6 bg-white bg-opacity-10 backdrop-blur-md rounded-lg shadow-lg">
-                <h3 className="text-2xl font-bold mb-2">{selectedTrip.from} to {selectedTrip.to}</h3>
-                <div className="space-y-4">
-                  {getTripDays(selectedTrip).map((day) => (
-                    <div
-                      key={day.dayNumber}
-                      className="p-4 bg-gray-800 bg-opacity-20 rounded-lg cursor-pointer hover:bg-opacity-30"
-                      onClick={() => setSelectedDay(day.dayNumber === selectedDay?.dayNumber ? null : day)}
-                    >
-                      <h4 className="text-lg font-semibold">Day {day.dayNumber}</h4>
-                      {selectedDay && selectedDay.dayNumber === day.dayNumber && (
-                        <div className="mt-2 space-y-2">
-                          <p>Start: {day.start}</p>
-                          <p>End: {day.end}</p>
-                          <p>Distance: {day.distanceKm.toFixed(1)} km</p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                {selectedDay && <DayDetails selectedDay={selectedDay} />}
               </div>
-              <div className="md:w-1/2 p-6 bg-white bg-opacity-10 backdrop-blur-md rounded-lg shadow-lg">
-                {selectedDay && (
-                  <div className="h-72 w-full mb-4 rounded overflow-hidden">
-                    <MapContainer
-                      center={selectedDay.coordinates}
-                      zoom={10}
-                      style={{ height: '100%', width: '100%' }}
-                    >
-                      <TileLayer
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                      />
-                      <Marker position={selectedDay.coordinates}>
-                        <Popup>Day {selectedDay.dayNumber} Midpoint</Popup>
-                      </Marker>
-                    </MapContainer>
-                  </div>
-                )}
-              </div>
+            </div>
+          )}
+          {loading && (
+            <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+              <CogIcon className="h-12 w-12 text-white animate-spin" />
             </div>
           )}
         </div>
       </main>
-      {loading && (
-        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
-          <CogIcon className="h-12 w-12 text-white animate-spin" />
-        </div>
-      )}
     </div>
   );
 };
