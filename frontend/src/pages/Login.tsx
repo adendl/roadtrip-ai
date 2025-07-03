@@ -18,7 +18,7 @@ const Login: React.FC = () => {
     setSuccessMessage('');
 
     try {
-      const response = await axios.post(`http://localhost:9090/api/users/login`, {
+      const response = await axios.post(`https://roadtrip-ai-backend-688052801817.australia-southeast1.run.app/api/users/login`, {
         username,
         password,
       });
