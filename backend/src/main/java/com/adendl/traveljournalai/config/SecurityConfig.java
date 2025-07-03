@@ -43,11 +43,14 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
-        // Use specific origin for development; replace with production origin later
-        config.setAllowedOrigins(List.of("http://localhost:5173")); // Specific origin for dev
-        config.setAllowedMethods(List.of("*")); // Allow all methods
+        // Allow both local development and production frontend origins
+        config.setAllowedOrigins(List.of(
+                "http://localhost:5173",
+                "https://roadtrip-ai-688052801817.australia-southeast1.run.app" // Replace with your actual production frontend URL
+        ));
+        config.setAllowedMethods(List.of("*")); // Allow all methods (GET, POST, etc.)
         config.setAllowedHeaders(List.of("*")); // Allow all headers
-        config.setAllowCredentials(true); // Allow credentials if needed
+        config.setAllowCredentials(true); // Allow credentials (e.g., cookies, if needed)
         config.setMaxAge(3600L); // Cache preflight for 1 hour
         source.registerCorsConfiguration("/**", config);
         return source;
