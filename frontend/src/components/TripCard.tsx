@@ -28,7 +28,7 @@ const TripCard: React.FC<TripCardProps> = ({ trip, onSelect, onDelete, setError 
     }
 
     try {
-      const response = await fetch(`http://localhost:9090/api/trips/${trip.id}`, {
+      const response = await fetch(`https://roadtrip-ai-backend-688052801817.australia-southeast1.run.app/api/trips/${trip.id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
