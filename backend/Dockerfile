@@ -20,7 +20,7 @@ FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
 
-COPY --from=builder /app/build/libs/*.jar app.jar
+COPY --from=builder /app/build/libs/traveljournalai-0.0.1-SNAPSHOT.jar app.jar
 
 ARG SERVER_PORT=9090
 EXPOSE ${SERVER_PORT}
