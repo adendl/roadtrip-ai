@@ -13,8 +13,4 @@ public class TraveljournalaiApplication {
 		SpringApplication.run(TraveljournalaiApplication.class, args);
 	}
 
-	@Bean
-	public GeometryFactory geometryFactory() {
-		return new GeometryFactory();
-	}
 }
