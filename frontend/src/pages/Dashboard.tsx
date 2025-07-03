@@ -68,7 +68,7 @@ const Dashboard: React.FC = () => {
 
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:9090/api/trips/user', {
+        const response = await fetch('https://roadtrip-ai-backend-688052801817.australia-southeast1.run.app/api/trips/user', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,

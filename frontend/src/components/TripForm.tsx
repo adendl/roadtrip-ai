@@ -44,7 +44,7 @@ const TripForm: React.FC<TripFormProps> = ({ newTrip, onInputChange, onDaysChang
     }
 
     try {
-      const response = await fetch('http://localhost:9090/api/trips/create', {
+      const response = await fetch('https://roadtrip-ai-backend-688052801817.australia-southeast1.run.app/api/trips/create', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
