@@ -25,10 +25,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Apply CORS first
-                .csrf(csrf -> csrf.disable()) // Disable CSRF for stateless API
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/users/register", "/api/users/login", "/api/entries/public", "/api/entries/share/**").permitAll()
+                        .requestMatchers("/api/users/register", "/api/users/login", "/api/entries/public", "/api/entries/share/**", "/api/trips/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
@@ -43,15 +43,14 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
-        // Allow both local development and production frontend origins
         config.setAllowedOrigins(List.of(
                 "http://localhost:5173",
-                "https://roadtrip-ai-688052801817.australia-southeast1.run.app" // Replace with your actual production frontend URL
+                "https://roadtrip-ai-688052801817.australia-southeast1.run.app"
         ));
-        config.setAllowedMethods(List.of("*")); // Allow all methods (GET, POST, etc.)
-        config.setAllowedHeaders(List.of("*")); // Allow all headers
-        config.setAllowCredentials(true); // Allow credentials (e.g., cookies, if needed)
-        config.setMaxAge(3600L); // Cache preflight for 1 hour
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+        config.setMaxAge(3600L);
         source.registerCorsConfiguration("/**", config);
         return source;
     }
