@@ -1,7 +1,6 @@
 package com.adendl.traveljournalai.config;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -36,12 +35,15 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                                     FilterChain chain)
             throws ServletException, IOException {
 
+        // Apply CORS headers to all responses
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
+        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        response.setHeader("Access-Control-Allow-Headers", "*");
+        response.setHeader("Access-Control-Max-Age", "3600");
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+
         // Handle CORS preflight OPTIONS request
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
-            response.setHeader("Access-Control-Allow-Origin", "http://localhost:5173"); // Specific origin
-            response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-            response.setHeader("Access-Control-Allow-Headers", "*");
-            response.setHeader("Access-Control-Max-Age", "3600");
             response.setStatus(HttpServletResponse.SC_OK);
             return;
         }
@@ -59,12 +61,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                         .verifyWith(key)
                         .build();
 
-                Jwt<?, Claims> parsedJwt = parser.parseSignedClaims(jwt);
-                Claims claims = parsedJwt.getPayload();
+                Claims claims = parser.parseSignedClaims(jwt).getPayload();
                 username = claims.getSubject();
 
             } catch (Exception e) {
-                System.out.println("JWT Parsing Error: " + e.getMessage());
+                logger.error("JWT Parsing Error: " + e.getMessage());
             }
         }
 
