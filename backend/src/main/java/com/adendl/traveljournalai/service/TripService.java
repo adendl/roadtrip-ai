@@ -49,7 +49,6 @@ public class TripService {
 
     public Trip createTrip(String jwtToken, String fromCity, String toCity, boolean roundtrip, int days, List<String> interests, double distanceKm) {
         User user = validateAndGetUserFromJwt(jwtToken);
-
         Trip trip = new Trip();
         trip.setFromCity(fromCity);
         trip.setToCity(toCity);
@@ -61,8 +60,6 @@ public class TripService {
         trip.setUser(user);
 
         trip = tripRepository.save(trip);
-
-        // Generate and save trip plan using OpenAI API
         TripPlan tripPlan = generateTripPlan(trip);
         tripPlanRepository.save(tripPlan);
 
@@ -76,16 +73,13 @@ public class TripService {
     }
 
     private User validateAndGetUserFromJwt(String jwtToken) {
-        System.out.println("JWT Token: " + jwtToken);
-        System.out.println("JWT Config Secret: " + jwtConfig.getSecretKey());
-
         SecretKey key = Keys.hmacShaKeyFor(jwtConfig.getSecretKey().getBytes(StandardCharsets.UTF_8));
-        Claims claims = Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parseSignedClaims(jwtToken)
-                .getPayload();
-
+        Claims claims;
+        try {
+            claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(jwtToken).getPayload();
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid JWT token", e);
+        }
         String username = claims.getSubject();
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -102,7 +96,7 @@ public class TripService {
         String interestsStr = String.join(", ", trip.getInterests());
         return String.format(
                 "Generate a detailed trip plan for a %s from %s to %s over %d days, with interests in %s. " +
-                        "The total distance is %.2f km. For each day, provide the start and finish locations with their latitudes and longitudes, " +
+                        "For each day, provide the start and finish locations with their latitudes and longitudes, " +
                         "the distance between them, an introduction to the destination, and some places of interest along the way. " +
                         "Return the response in JSON format with the following structure: " +
                         "{\"days\": [{\"day\": 1, \"startLocation\": {\"name\": \"City A\", \"latitude\": 12.34, \"longitude\": 56.78}, " +
@@ -125,29 +119,23 @@ public class TripService {
                 Map.of("role", "system", "content", "You are a helpful assistant that generates trip plans."),
                 Map.of("role", "user", "content", prompt)
         ));
-        body.put("max_tokens", 1500);
+        body.put("max_tokens", 5000);
         body.put("response_format", Map.of("type", "json_object"));
 
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
         ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
         if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
             return response.getBody();
-        } else {
-            throw new RuntimeException("Failed to call OpenAI API: " + (response.getBody() != null ? response.getBody() : response.getStatusCode()));
         }
+        throw new RuntimeException("Failed to call OpenAI API");
     }
 
     private TripPlan parseTripPlan(String json, Trip trip) {
         ObjectMapper mapper = new ObjectMapper();
         try {
             JsonNode root = mapper.readTree(json);
-            JsonNode choices = root.path("choices");
-            if (choices.isEmpty()) {
-                throw new RuntimeException("No choices returned from OpenAI API");
-            }
-            JsonNode contentNode = choices.get(0).path("message").path("content");
-            String tripPlanJson = contentNode.asText().trim();
-            JsonNode tripPlanNode = mapper.readTree(tripPlanJson);
+            JsonNode contentNode = root.path("choices").get(0).path("message").path("content");
+            JsonNode tripPlanNode = mapper.readTree(contentNode.asText().trim());
 
             TripPlan tripPlan = new TripPlan();
             tripPlan.setTrip(trip);
@@ -195,20 +183,34 @@ public class TripService {
     }
 
     public List<Trip> getTripsByUser(User user) {
-        return tripRepository.findByUser(user);
+        List<Trip> trips = tripRepository.findByUser(user);
+        for (Trip trip : trips) {
+            if (trip.getTripPlans() != null) {
+                for (TripPlan plan : trip.getTripPlans()) {
+                    plan.setTrip(null);
+                    if (plan.getDays() != null) {
+                        for (DayPlan day : plan.getDays()) {
+                            day.setTripPlan(null);
+                            if (day.getPlacesOfInterest() != null) {
+                                for (PlaceOfInterest poi : day.getPlacesOfInterest()) {
+                                    poi.setDayPlan(null);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return trips;
     }
 
     public boolean deleteTrip(String jwtToken, Long tripId) {
-        System.out.println("Delete JWT Token: " + jwtToken);
-        System.out.println("Delete Trip ID: " + tripId);
-
         User user = validateAndGetUserFromJwt(jwtToken);
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new RuntimeException("Trip not found"));
         if (!trip.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("Unauthorized to delete this trip");
         }
-
         tripRepository.delete(trip);
         return true;
     }

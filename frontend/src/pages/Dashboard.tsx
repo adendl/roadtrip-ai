@@ -7,11 +7,37 @@ import TripCard from '../components/TripCard';
 import TripDetails from '../components/TripDetails';
 import DayDetails from '../components/DayDetails';
 import { CogIcon } from '@heroicons/react/24/outline';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
 import { motion } from 'framer-motion';
 import '../styles/leaflet.css';
+
+// Define interfaces for new data models
+interface Location {
+  name: string;
+  latitude: number;
+  longitude: number;
+}
+
+interface PlaceOfInterest {
+  name: string;
+  description: string;
+  latitude: number;
+  longitude: number;
+}
+
+interface DayPlan {
+  id: number;
+  dayNumber: number;
+  startLocation: Location;
+  finishLocation: Location;
+  distanceKm: number;
+  introduction: string;
+  placesOfInterest: PlaceOfInterest[];
+}
+
+interface TripPlan {
+  id: number;
+  days: DayPlan[];
+}
 
 interface Trip {
   id: number;
@@ -22,14 +48,7 @@ interface Trip {
   interests: string[];
   distanceKm: number;
   createdAt: string;
-}
-
-interface IDayDetails {
-  dayNumber: number;
-  start: string;
-  end: string;
-  distanceKm: number;
-  coordinates: [number, number];
+  tripPlans: TripPlan[];
 }
 
 const Dashboard: React.FC = () => {
@@ -43,7 +62,7 @@ const Dashboard: React.FC = () => {
   }, [isLoggedIn, token, navigate]);
 
   const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
-  const [selectedDay, setSelectedDay] = useState<IDayDetails | null>(null);
+  const [selectedDay, setSelectedDay] = useState<DayPlan | null>(null);
   const [newTrip, setNewTrip] = useState<Trip>({
     id: 0,
     from: '',
@@ -53,6 +72,7 @@ const Dashboard: React.FC = () => {
     interests: [],
     distanceKm: 0,
     createdAt: new Date().toISOString(),
+    tripPlans: [],
   });
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(false);
@@ -68,7 +88,7 @@ const Dashboard: React.FC = () => {
 
       try {
         setLoading(true);
-        const response = await fetch('https://roadtrip-ai-backend-688052801817.australia-southeast1.run.app/api/trips/user', {
+        const response = await fetch('http://localhost:8080/api/trips/user', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -77,11 +97,28 @@ const Dashboard: React.FC = () => {
         });
 
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          const text = await response.text();
+          console.error('HTTP error response:', text);
+          throw new Error(`HTTP error! status: ${response.status}, body: ${text.substring(0, 500)}...`);
         }
 
-        const data = await response.json();
-        const mappedTrips: Trip[] = data.map((item: any) => ({
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          const text = await response.text();
+          console.error('Non-JSON response:', text);
+          throw new Error('Response is not JSON');
+        }
+
+        const responseText = await response.text();
+        let data;
+        try {
+          data = JSON.parse(responseText);
+        } catch (parseError) {
+          console.error('JSON parse error:', parseError, 'Raw response:', responseText.substring(0, 2000));
+          throw new Error('Failed to parse JSON response');
+        }
+
+        const mappedTrips: Trip[] = Array.isArray(data) ? data.map((item: any) => ({
           id: item.tripId || item.id || 0,
           from: item.fromCity || item.from || 'Unknown',
           to: item.toCity || item.to || 'Unknown',
@@ -90,7 +127,8 @@ const Dashboard: React.FC = () => {
           interests: item.interests || [],
           distanceKm: item.distanceKm || 0,
           createdAt: item.createdAt || new Date().toISOString(),
-        }));
+          tripPlans: item.tripPlans || [],
+        })) : [];
         setTrips(mappedTrips);
       } catch (error) {
         console.error('Error fetching user trips:', error);
@@ -133,44 +171,13 @@ const Dashboard: React.FC = () => {
   }, []);
 
   const handleSubmit = useCallback((e: React.FormEvent, trip: Trip) => {
-    e.preventDefault();
-    setLoading(false);
-    setTrips((prev) => [...prev, trip]);
-    setNewTrip((prev) => ({
-      ...prev,
-      id: 0,
-      from: '',
-      to: '',
-      roundtrip: false,
-      days: 1,
-      interests: [],
-      distanceKm: 0,
-      createdAt: new Date().toISOString(),
-    }));
-    setError(null);
+    setLoading(true); // Set loading to true before submission
+    // onSubmit will be called by TripForm after API response
   }, []);
 
   const handleDeleteTrip = useCallback((id: number) => {
     setTrips((prev) => prev.filter((trip) => trip.id !== id));
   }, []);
-
-  const getTripDays = (trip: Trip): IDayDetails[] => {
-    const totalDistance = trip.distanceKm;
-    const distancePerDay = totalDistance / trip.days;
-    const days: IDayDetails[] = [];
-    for (let i = 1; i <= trip.days; i++) {
-      days.push({
-        dayNumber: i,
-        start: i === 1 ? trip.from : (trip.roundtrip && i === trip.days ? trip.from : trip.to),
-        end: trip.roundtrip && i === trip.days ? trip.from : trip.to,
-        distanceKm: distancePerDay,
-        coordinates: trip.from === 'Sydney, Australia' && trip.to === 'Melbourne, Australia'
-          ? [-34.0 + (i - 1) * (2 / trip.days), 144.0 + (i - 1) * (2 / trip.days)]
-          : [35.0 + (i - 1) * (2 / trip.days), 135.0 + (i - 1) * (2 / trip.days)],
-      });
-    }
-    return days;
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800 relative">
@@ -189,6 +196,7 @@ const Dashboard: React.FC = () => {
               onRoundTripToggle={handleRoundTripToggle}
               onSubmit={handleSubmit}
               loading={loading}
+              setLoading={setLoading} // Pass setLoading to TripForm
               setError={setError}
               error={error}
             />
@@ -224,7 +232,6 @@ const Dashboard: React.FC = () => {
                   selectedTrip={selectedTrip}
                   selectedDay={selectedDay}
                   setSelectedDay={setSelectedDay}
-                  getTripDays={getTripDays}
                 />
                 <div className="md:w-1/2 p-6 bg-white rounded-lg shadow-md">
                   {selectedDay && <DayDetails selectedDay={selectedDay} />}

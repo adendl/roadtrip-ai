@@ -1,4 +1,3 @@
-// src/main/java/com/adendl/traveljournalai/controller/TripController.java
 package com.adendl.traveljournalai.controller;
 
 import com.adendl.traveljournalai.model.Trip;
@@ -28,7 +27,6 @@ public class TripController {
     public ResponseEntity<Trip> createTrip(
             @RequestHeader("Authorization") String authorizationHeader,
             @RequestBody TripRequest tripRequest) {
-
         String jwtToken = authorizationHeader.replace("Bearer ", "");
         try {
             Trip trip = tripService.createTrip(
@@ -55,14 +53,14 @@ public class TripController {
         String username = auth.getName();
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return ResponseEntity.ok(tripService.getTripsByUser(user));
+        List<Trip> trips = tripService.getTripsByUser(user);
+        return ResponseEntity.ok(trips);
     }
 
     @DeleteMapping("/{tripId}")
     public ResponseEntity<Void> deleteTrip(
             @PathVariable Long tripId,
             @RequestHeader("Authorization") String authorizationHeader) {
-
         String jwtToken = authorizationHeader.replace("Bearer ", "");
         try {
             boolean success = tripService.deleteTrip(jwtToken, tripId);
