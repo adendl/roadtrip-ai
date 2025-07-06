@@ -11,7 +11,7 @@ import PDFDownloadButton from '../components/PDFDownloadButton';
 import { CogIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 import '../styles/leaflet.css';
-import { buildApiUrl, getApiHeaders, API_ENDPOINTS } from '../utils/api';
+import { buildApiUrl, getApiHeaders, API_ENDPOINTS, fetchWithTimeout } from '../utils/api';
 
 // Define interfaces for new data models
 interface Location {
@@ -64,6 +64,21 @@ const Dashboard: React.FC = () => {
     }
   }, [isLoggedIn, token, navigate]);
 
+  // Check for pending trip data from home page
+  useEffect(() => {
+    const pendingTripData = localStorage.getItem('pendingTripData');
+    if (pendingTripData) {
+      try {
+        const tripData = JSON.parse(pendingTripData);
+        setNewTrip(tripData);
+        localStorage.removeItem('pendingTripData'); // Clear the data
+      } catch (error) {
+        console.error('Error parsing pending trip data:', error);
+        localStorage.removeItem('pendingTripData');
+      }
+    }
+  }, []);
+
   const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
   const [selectedDay, setSelectedDay] = useState<DayPlan | null>(null);
   const [newTrip, setNewTrip] = useState<Trip>({
@@ -91,10 +106,10 @@ const Dashboard: React.FC = () => {
 
       try {
         setLoading(true);
-        const response = await fetch(buildApiUrl(API_ENDPOINTS.TRIPS.GET_USER_TRIPS), {
+        const response = await fetchWithTimeout(buildApiUrl(API_ENDPOINTS.TRIPS.GET_USER_TRIPS), {
           method: 'GET',
           headers: getApiHeaders(token),
-        });
+        }, 30000); // 30 seconds timeout for fetching trips
 
         if (!response.ok) {
           const text = await response.text();

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Button from './Button';
 import { PlusIcon, MinusIcon, CheckIcon, CogIcon } from '@heroicons/react/24/outline';
 import { validateTripForm } from '../utils/TripFormValidation';
-import { buildApiUrl, getApiHeaders, API_ENDPOINTS } from '../utils/api';
+import { buildApiUrl, getApiHeaders, API_ENDPOINTS, fetchWithTimeout } from '../utils/api';
 
 // Define interfaces for new data models
 interface Location {
@@ -119,7 +119,7 @@ const TripForm: React.FC<TripFormProps> = ({
         interests: newTrip.interests,
         distanceKm: 500,
       }); // Debug the payload
-      const response = await fetch(buildApiUrl(API_ENDPOINTS.TRIPS.CREATE), {
+      const response = await fetchWithTimeout(buildApiUrl(API_ENDPOINTS.TRIPS.CREATE), {
         method: 'POST',
         headers: getApiHeaders(token),
         body: JSON.stringify({
@@ -130,7 +130,7 @@ const TripForm: React.FC<TripFormProps> = ({
           interests: newTrip.interests,
           distanceKm: 500,
         }),
-      });
+      }, 600000); // 10 minutes timeout for trip generation
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -145,7 +145,11 @@ const TripForm: React.FC<TripFormProps> = ({
       }
     } catch (error) {
       console.error('Error creating trip:', error);
-      setError('Failed to create trip. Please try again or check your connection.');
+      if (error instanceof Error && error.message.includes('timed out')) {
+        setError('Trip generation is taking longer than expected. Please wait a moment and check your trips list - it may have been created successfully.');
+      } else {
+        setError('Failed to create trip. Please try again or check your connection.');
+      }
     } finally {
       setLoading(false); // Reset loading after response or error
     }

@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Button from '../components/Button';
 import Header from '../components/Header';
 import Hero from '../components/Hero';
+import HomeTripForm from '../components/HomeTripForm';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -10,12 +11,19 @@ import '../styles/Hero.css';
 const Home: React.FC = () => {
   const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
+  const [showTripForm, setShowTripForm] = useState(false);
+
+  const handleTripData = (tripData: any) => {
+    // Store the trip data and navigate to dashboard
+    localStorage.setItem('pendingTripData', JSON.stringify(tripData));
+    navigate('/dashboard');
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 text-gray-800">
       <Header />
       <main className="pb-12">
-        {/* Hero Section with Integrated CTA */}
+        {/* Hero Section with Trip Form */}
         <Hero
           title="Plan Your Perfect Roadtrip"
           description="Let Roadtrip.ai craft a personalised itinerary for your next adventure, with AI-driven routes and tailored suggestions."
@@ -24,20 +32,9 @@ const Home: React.FC = () => {
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="mt-8 text-center bg-gray-900 bg-opacity-50 p-6 rounded-xl shadow-lg"
+            className="mt-8"
           >
-            <h3 className="text-3xl font-bold mb-4 font-montserrat text-white">Ready for Your Adventure?</h3>
-            <p className="text-lg mb-6 font-roboto text-white">
-              {isLoggedIn
-                ? "Continue your journey with AI-powered planning."
-                : "Unlock your dream road trip with AI-powered planning. Sign up now and start today!"}
-            </p>
-            <Button
-              text={isLoggedIn ? "Plan Your Trip" : "Get Started"}
-              onClick={() => isLoggedIn ? navigate('/dashboard') : window.location.href = '/signup'}
-              variant="primary"
-              className="px-8 py-3 text-lg font-roboto bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 rounded-full shadow-md hover:shadow-lg transition-all duration-300"
-            />
+            <HomeTripForm onTripData={handleTripData} />
           </motion.section>
         </Hero>
 

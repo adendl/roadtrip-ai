@@ -39,7 +39,15 @@ const SignUp: React.FC = () => {
       console.log('Registration Success:', response.data);
       setSuccessMessage('Registration Successful!');
       setTimeout(() => {
-        window.location.href = '/login';
+        // Check if there's pending trip data
+        const pendingTripData = localStorage.getItem('pendingTripData');
+        if (pendingTripData) {
+          // Redirect to dashboard to continue with trip planning
+          window.location.href = '/dashboard';
+        } else {
+          // Redirect to login
+          window.location.href = '/login';
+        }
       }, 2000);
     } catch (error) {
       console.error('Registration Error:', error);

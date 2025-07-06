@@ -165,7 +165,7 @@ public class TripService {
             headers.set("Content-Type", "application/json");
 
             Map<String, Object> body = new HashMap<>();
-            body.put("model", "gpt-4.5-preview");
+            body.put("model", "gpt-4.1-mini");
             body.put("messages", List.of(
                     Map.of("role", "system", "content", "You are a helpful assistant that generates trip plans."),
                     Map.of("role", "user", "content", prompt)

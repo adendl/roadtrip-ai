@@ -1,6 +1,6 @@
 import React from 'react';
      import { TrashIcon } from '@heroicons/react/24/outline';
-     import { buildApiUrl, getApiHeaders, API_ENDPOINTS } from '../utils/api';
+     import { buildApiUrl, getApiHeaders, API_ENDPOINTS, fetchWithTimeout } from '../utils/api';
 
      interface Location {
        name: string;
@@ -58,10 +58,10 @@ import React from 'react';
          }
 
          try {
-           const response = await fetch(buildApiUrl(API_ENDPOINTS.TRIPS.DELETE(trip.id)), {
+           const response = await fetchWithTimeout(buildApiUrl(API_ENDPOINTS.TRIPS.DELETE(trip.id)), {
              method: 'DELETE',
              headers: getApiHeaders(token),
-           });
+           }, 10000); // 10 seconds timeout for delete operations
 
            if (!response.ok) {
              throw new Error(`HTTP error! status: ${response.status}`);
