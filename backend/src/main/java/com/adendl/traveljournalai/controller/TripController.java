@@ -12,6 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 
 import java.util.List;
 
@@ -35,22 +38,17 @@ public class TripController {
                    tripRequest.getFromCity(), tripRequest.getToCity(), tripRequest.getDays());
         
         String jwtToken = authorizationHeader.replace("Bearer ", "");
-        try {
-            Trip trip = tripService.createTrip(
-                    jwtToken,
-                    tripRequest.getFromCity(),
-                    tripRequest.getToCity(),
-                    tripRequest.isRoundtrip(),
-                    tripRequest.getDays(),
-                    tripRequest.getInterests(),
-                    tripRequest.getDistanceKm()
-            );
-            logger.info("Successfully created trip with ID: {}", trip.getTripId());
-            return ResponseEntity.ok(trip);
-        } catch (Exception e) {
-            logger.error("Failed to create trip: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
+        Trip trip = tripService.createTrip(
+                jwtToken,
+                tripRequest.getFromCity(),
+                tripRequest.getToCity(),
+                tripRequest.isRoundtrip(),
+                tripRequest.getDays(),
+                tripRequest.getInterests(),
+                tripRequest.getDistanceKm()
+        );
+        logger.info("Successfully created trip with ID: {}", trip.getTripId());
+        return ResponseEntity.ok(trip);
     }
 
     @GetMapping("/user")
@@ -76,19 +74,30 @@ public class TripController {
             @RequestHeader("Authorization") String authorizationHeader) {
         logger.info("Attempting to delete trip with ID: {}", tripId);
         String jwtToken = authorizationHeader.replace("Bearer ", "");
-        try {
-            boolean success = tripService.deleteTrip(jwtToken, tripId);
-            if (success) {
-                logger.info("Successfully deleted trip with ID: {}", tripId);
-                return ResponseEntity.ok().build();
-            } else {
-                logger.error("Failed to delete trip with ID: {}", tripId);
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-            }
-        } catch (Exception e) {
-            logger.error("Exception occurred while deleting trip with ID {}: {}", tripId, e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        boolean success = tripService.deleteTrip(jwtToken, tripId);
+        if (success) {
+            logger.info("Successfully deleted trip with ID: {}", tripId);
+            return ResponseEntity.ok().build();
+        } else {
+            logger.error("Failed to delete trip with ID: {}", tripId);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+}
+
+@RestControllerAdvice(assignableTypes = TripController.class)
+class TripControllerAdvice {
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<String> handleBadRequest(HttpMessageNotReadableException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Malformed JSON request");
+    }
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleException(Exception ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
     }
 }
 

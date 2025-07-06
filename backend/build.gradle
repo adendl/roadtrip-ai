@@ -31,6 +31,7 @@ dependencies {
 	// Log4j dependencies
 	implementation 'org.springframework.boot:spring-boot-starter-log4j2'
 	runtimeOnly 'org.postgresql:postgresql:42.7.4' // Latest PostgreSQL driver
+	testRuntimeOnly 'com.h2database:h2' // H2 database for testing
 	implementation 'org.locationtech.jts:jts-core:1.20.0' // For PostGIS
 	implementation 'software.amazon.awssdk:s3:2.26.4' // AWS S3 SDK
 	compileOnly 'org.projectlombok:lombok:1.18.34'
