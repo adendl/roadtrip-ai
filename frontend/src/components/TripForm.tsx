@@ -3,6 +3,7 @@ import Button from './Button';
 import { PlusIcon, MinusIcon, CheckIcon, CogIcon } from '@heroicons/react/24/outline';
 import { validateTripForm } from '../utils/TripFormValidation';
 import { buildApiUrl, getApiHeaders, API_ENDPOINTS, fetchWithTimeout } from '../utils/api';
+import { INTEREST_TYPES, formatInterestName } from '../utils/constants';
 
 // Define interfaces for new data models
 interface Location {
@@ -227,9 +228,9 @@ const TripForm: React.FC<TripFormProps> = ({
         </div>
         <div className="mt-4">
           <label className="block mb-2 text-gray-800">Interests</label>
-          <div className="flex flex-wrap gap-4">
-            {['adventure', 'food', 'culture', 'sightseeing'].map((interest) => (
-              <label key={interest} className="flex items-center">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {INTEREST_TYPES.map((interest) => (
+              <label key={interest} className="flex items-center bg-gray-50 rounded-lg p-2 hover:bg-gray-100 transition-all duration-200">
                 <input
                   type="checkbox"
                   name="interests"
@@ -238,7 +239,9 @@ const TripForm: React.FC<TripFormProps> = ({
                   onChange={onInputChange}
                   className="mr-2"
                 />
-                {interest.charAt(0).toUpperCase() + interest.slice(1)}
+                <span className="text-gray-800 text-sm">
+                  {formatInterestName(interest)}
+                </span>
               </label>
             ))}
           </div>

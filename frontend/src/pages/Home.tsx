@@ -14,15 +14,26 @@ const Home: React.FC = () => {
   const [showTripForm, setShowTripForm] = useState(false);
 
   const handleTripData = (tripData: any) => {
-    // Store the trip data and navigate to dashboard
-    localStorage.setItem('pendingTripData', JSON.stringify(tripData));
-    navigate('/dashboard');
+    console.log('Home page received trip data:', tripData);
+    console.log('User logged in:', isLoggedIn);
+    
+    if (!isLoggedIn) {
+      // Store trip data in localStorage and redirect to signup
+      console.log('Redirecting to signup');
+      localStorage.setItem('pendingTripData', JSON.stringify(tripData));
+      navigate('/signup');
+    } else {
+      // If logged in, store the trip data and navigate to dashboard
+      console.log('Redirecting to dashboard');
+      localStorage.setItem('pendingTripData', JSON.stringify(tripData));
+      navigate('/dashboard');
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-100 text-gray-800">
       <Header />
-      <main className="pb-12">
+      <main>
         {/* Hero Section with Trip Form */}
         <Hero
           title="Plan Your Perfect Roadtrip"
@@ -43,7 +54,7 @@ const Home: React.FC = () => {
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16"
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16"
         >
           <h2 className="text-3xl font-bold mb-8 text-center font-montserrat">Explore Our Features</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -76,7 +87,7 @@ const Home: React.FC = () => {
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="max-w-3xl mx-auto mt-16 px-4 sm:px-6 lg:px-8 bg-gray-200 rounded-xl p-8"
+          className="max-w-3xl mx-auto py-16 px-4 sm:px-6 lg:px-8 bg-gray-200 rounded-xl p-8"
         >
           <h3 className="text-3xl font-bold mb-4 font-montserrat text-gray-900">Stay Updated</h3>
           <p className="text-lg mb-6 font-roboto text-gray-700">Subscribe for the latest travel tips and AI-powered road trip updates!</p>
@@ -99,7 +110,7 @@ const Home: React.FC = () => {
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="max-w-4xl mx-auto mt-16 px-4 sm:px-6 lg:px-8"
+          className="max-w-4xl mx-auto py-16 px-4 sm:px-6 lg:px-8"
         >
           <h3 className="text-3xl font-bold mb-8 text-center font-montserrat">What Our Users Say</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

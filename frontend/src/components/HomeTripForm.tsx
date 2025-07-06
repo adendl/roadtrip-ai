@@ -3,6 +3,7 @@ import { PlusIcon, MinusIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { validateTripForm } from '../utils/TripFormValidation';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { INTEREST_TYPES, formatInterestName } from '../utils/constants';
 
 interface Trip {
   id: number;
@@ -24,6 +25,9 @@ const HomeTripForm: React.FC<HomeTripFormProps> = ({ onTripData }) => {
   const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [roundtrip, setRoundtrip] = useState(false);
+  
+ 
   
   const [tripData, setTripData] = useState<Trip>({
     id: 0,
@@ -66,31 +70,29 @@ const HomeTripForm: React.FC<HomeTripFormProps> = ({ onTripData }) => {
     e.preventDefault();
     setValidationErrors([]);
 
-    const { isValid, errors } = validateTripForm(tripData);
+    // Create the final trip data with the current roundtrip state
+    const finalTripData = { ...tripData, roundtrip };
+
+    const { isValid, errors } = validateTripForm(finalTripData);
     if (!isValid) {
       setValidationErrors(errors);
       return;
     }
 
-    if (!isLoggedIn) {
-      // Store trip data in localStorage and redirect to signup
-      localStorage.setItem('pendingTripData', JSON.stringify(tripData));
-      navigate('/signup');
-      return;
-    }
-
-    // If logged in, pass the trip data to parent component
-    onTripData(tripData);
-  }, [tripData, isLoggedIn, navigate, onTripData]);
+    // Always pass the trip data to parent component
+    // The parent component will handle the flow based on login status
+    onTripData(finalTripData);
+  }, [tripData, roundtrip, onTripData]);
 
   const isFormValid = useCallback(() => {
     return tripData.from.trim().length > 0 && tripData.to.trim().length > 0 && tripData.from.length <= 20 && tripData.to.length <= 20;
   }, [tripData]);
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white bg-opacity-20 backdrop-blur-md p-8 rounded-2xl shadow-2xl border border-white border-opacity-30 max-w-2xl mx-auto">
-      <h3 className="text-3xl font-bold mb-6 text-white font-montserrat text-left drop-shadow-lg">Plan Your Adventure</h3>
-      
+    <form 
+      onSubmit={handleSubmit} 
+      className="bg-white bg-opacity-20 backdrop-blur-md p-8 rounded-2xl shadow-2xl border border-white border-opacity-30 max-w-2xl mx-auto"
+    >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <input
           type="text"
@@ -119,21 +121,33 @@ const HomeTripForm: React.FC<HomeTripFormProps> = ({ onTripData }) => {
       )}
 
       <div className="flex items-center mb-6">
-        <label className="flex items-center">
-          <input
-            type="checkbox"
-            name="roundtrip"
-            checked={tripData.roundtrip}
-            onChange={handleInputChange}
-            className="hidden"
-          />
-          <span
-            className={`h-6 w-6 flex items-center justify-center bg-white bg-opacity-90 border border-white border-opacity-50 rounded-full cursor-pointer ${tripData.roundtrip ? 'bg-blue-600 border-blue-600' : ''}`}
+        <button
+          type="button"
+          onClick={() => {
+            console.log('Round trip button clicked, current state:', roundtrip);
+            setRoundtrip(!roundtrip);
+          }}
+          className="flex items-center bg-transparent border-none cursor-pointer"
+        >
+          <div 
+            className={`h-6 w-6 flex items-center justify-center border rounded-full transition-all duration-200 ${
+              roundtrip 
+                ? 'bg-blue-600 border-blue-600' 
+                : 'bg-white bg-opacity-90 border-white border-opacity-50'
+            }`}
+            style={{ 
+              minWidth: '24px', 
+              minHeight: '24px',
+              backgroundColor: roundtrip ? '#2563eb' : 'rgba(255, 255, 255, 0.9)',
+              borderColor: roundtrip ? '#2563eb' : 'rgba(255, 255, 255, 0.5)'
+            }}
           >
-            {tripData.roundtrip && <CheckIcon className="h-4 w-4 text-white" />}
+            {roundtrip && <CheckIcon className="h-4 w-4 text-white" />}
+          </div>
+          <span className="ml-2 text-white font-medium drop-shadow-sm hover:text-blue-200 transition-colors duration-200">
+            Round Trip
           </span>
-          <span className="ml-2 text-white font-medium drop-shadow-sm">Round Trip</span>
-        </label>
+        </button>
       </div>
 
       <div className="mb-6">
@@ -159,9 +173,9 @@ const HomeTripForm: React.FC<HomeTripFormProps> = ({ onTripData }) => {
 
       <div className="mb-8">
         <label className="block mb-3 text-white font-medium drop-shadow-sm text-left">Interests</label>
-        <div className="flex flex-wrap gap-4">
-          {['adventure', 'food', 'culture', 'sightseeing'].map((interest) => (
-            <label key={interest} className="flex items-center">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          {INTEREST_TYPES.map((interest) => (
+            <label key={interest} className="flex items-center bg-white bg-opacity-20 rounded-lg p-2 hover:bg-opacity-30 transition-all duration-200">
               <input
                 type="checkbox"
                 name="interests"
@@ -170,8 +184,8 @@ const HomeTripForm: React.FC<HomeTripFormProps> = ({ onTripData }) => {
                 onChange={handleInputChange}
                 className="mr-2"
               />
-              <span className="text-white font-medium drop-shadow-sm">
-                {interest.charAt(0).toUpperCase() + interest.slice(1)}
+              <span className="text-white font-medium drop-shadow-sm text-sm">
+                {formatInterestName(interest)}
               </span>
             </label>
           ))}
