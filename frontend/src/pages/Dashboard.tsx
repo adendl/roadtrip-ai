@@ -9,6 +9,7 @@ import DayDetails from '../components/DayDetails';
 import { CogIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 import '../styles/leaflet.css';
+import { buildApiUrl, getApiHeaders, API_ENDPOINTS } from '../utils/api';
 
 // Define interfaces for new data models
 interface Location {
@@ -88,12 +89,9 @@ const Dashboard: React.FC = () => {
 
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:8080/api/trips/user', {
+        const response = await fetch(buildApiUrl(API_ENDPOINTS.TRIPS.GET_USER_TRIPS), {
           method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
+          headers: getApiHeaders(token),
         });
 
         if (!response.ok) {

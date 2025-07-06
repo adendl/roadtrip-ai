@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Button from './Button';
 import { PlusIcon, MinusIcon, CheckIcon, CogIcon } from '@heroicons/react/24/outline';
 import { validateTripForm } from '../utils/TripFormValidation';
+import { buildApiUrl, getApiHeaders, API_ENDPOINTS } from '../utils/api';
 
 // Define interfaces for new data models
 interface Location {
@@ -118,12 +119,9 @@ const TripForm: React.FC<TripFormProps> = ({
         interests: newTrip.interests,
         distanceKm: 500,
       }); // Debug the payload
-      const response = await fetch('http://localhost:8080/api/trips/create', {
+      const response = await fetch(buildApiUrl(API_ENDPOINTS.TRIPS.CREATE), {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: getApiHeaders(token),
         body: JSON.stringify({
           fromCity: newTrip.from,
           toCity: newTrip.to,

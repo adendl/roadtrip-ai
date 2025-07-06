@@ -4,6 +4,8 @@ import com.adendl.traveljournalai.model.Trip;
 import com.adendl.traveljournalai.model.User;
 import com.adendl.traveljournalai.repository.UserRepository;
 import com.adendl.traveljournalai.service.TripService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,8 @@ import java.util.List;
 @RequestMapping("/api/trips")
 public class TripController {
 
+    private static final Logger logger = LogManager.getLogger(TripController.class);
+
     @Autowired
     private TripService tripService;
 
@@ -27,6 +31,9 @@ public class TripController {
     public ResponseEntity<Trip> createTrip(
             @RequestHeader("Authorization") String authorizationHeader,
             @RequestBody TripRequest tripRequest) {
+        logger.info("Creating new trip from {} to {} for {} days", 
+                   tripRequest.getFromCity(), tripRequest.getToCity(), tripRequest.getDays());
+        
         String jwtToken = authorizationHeader.replace("Bearer ", "");
         try {
             Trip trip = tripService.createTrip(
@@ -38,22 +45,28 @@ public class TripController {
                     tripRequest.getInterests(),
                     tripRequest.getDistanceKm()
             );
+            logger.info("Successfully created trip with ID: {}", trip.getTripId());
             return ResponseEntity.ok(trip);
         } catch (Exception e) {
+            logger.error("Failed to create trip: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
     }
 
     @GetMapping("/user")
     public ResponseEntity<List<Trip>> getUserTrips() {
+        logger.debug("Getting trips for authenticated user");
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated() || auth.getName() == null) {
+            logger.warn("Unauthorized access attempt to getUserTrips");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         String username = auth.getName();
+        logger.info("Fetching trips for user: {}", username);
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         List<Trip> trips = tripService.getTripsByUser(user);
+        logger.info("Retrieved {} trips for user: {}", trips.size(), username);
         return ResponseEntity.ok(trips);
     }
 
@@ -61,11 +74,19 @@ public class TripController {
     public ResponseEntity<Void> deleteTrip(
             @PathVariable Long tripId,
             @RequestHeader("Authorization") String authorizationHeader) {
+        logger.info("Attempting to delete trip with ID: {}", tripId);
         String jwtToken = authorizationHeader.replace("Bearer ", "");
         try {
             boolean success = tripService.deleteTrip(jwtToken, tripId);
-            return success ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            if (success) {
+                logger.info("Successfully deleted trip with ID: {}", tripId);
+                return ResponseEntity.ok().build();
+            } else {
+                logger.error("Failed to delete trip with ID: {}", tripId);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
         } catch (Exception e) {
+            logger.error("Exception occurred while deleting trip with ID {}: {}", tripId, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }

@@ -38,6 +38,7 @@ public class DayPlan {
 
     private double distanceKm;
 
+    @Column(length = 1000)
     private String introduction;
 
     @OneToMany(mappedBy = "dayPlan", cascade = CascadeType.ALL)

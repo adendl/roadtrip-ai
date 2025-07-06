@@ -14,6 +14,12 @@ RUN npm install
 COPY . .
 
 # Build the app for production
+# Environment variables will be available at build time
+ARG VITE_API_BASE_URL
+ARG VITE_APP_ENV
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+ENV VITE_APP_ENV=$VITE_APP_ENV
+
 RUN npm run build
 
 # Stage 2: Serve

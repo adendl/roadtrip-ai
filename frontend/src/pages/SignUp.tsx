@@ -31,7 +31,7 @@ const SignUp: React.FC = () => {
     }
 
     try {
-      const response = await axios.post(`${import.meta.env.REACT_APP_API_BASE_URL}/api/users/register`, {
+      const response = await axios.post(`https://roadtrip-ai-backend-688052801817.australia-southeast1.run.app/api/users/register`, {
         username,
         email,
         password,

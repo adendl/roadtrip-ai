@@ -1,5 +1,6 @@
 import React from 'react';
      import { TrashIcon } from '@heroicons/react/24/outline';
+     import { buildApiUrl, getApiHeaders, API_ENDPOINTS } from '../utils/api';
 
      interface Location {
        name: string;
@@ -57,12 +58,9 @@ import React from 'react';
          }
 
          try {
-           const response = await fetch(`https://roadtrip-ai-backend-688052801817.australia-southeast1.run.app/api/trips/${trip.id}`, {
+           const response = await fetch(buildApiUrl(API_ENDPOINTS.TRIPS.DELETE(trip.id)), {
              method: 'DELETE',
-             headers: {
-               'Authorization': `Bearer ${token}`,
-               'Content-Type': 'application/json',
-             },
+             headers: getApiHeaders(token),
            });
 
            if (!response.ok) {

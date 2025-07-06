@@ -2,6 +2,7 @@ package com.adendl.traveljournalai.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.Instant;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.List;
 @Entity
 @Table(name = "trips")
 @Data
+@EqualsAndHashCode(exclude = "tripPlans") // Exclude tripPlans to break circular reference
 public class Trip {
 
     @Id
@@ -44,4 +46,7 @@ public class Trip {
 
     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL)
     private List<TripPlan> tripPlans;
+
+    public Long getTripId() { return tripId; }
+
 }

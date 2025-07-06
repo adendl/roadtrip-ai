@@ -4,6 +4,7 @@ import Header from '../components/Header';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
+import { buildApiUrl, API_ENDPOINTS } from '../utils/api';
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -18,7 +19,7 @@ const Login: React.FC = () => {
     setSuccessMessage('');
 
     try {
-      const response = await axios.post(`http://localhost:8080/api/users/login`, {
+      const response = await axios.post(buildApiUrl(API_ENDPOINTS.LOGIN), {
         username,
         password,
       });
@@ -74,7 +75,7 @@ const Login: React.FC = () => {
             {successMessage && <p className="text-green-600 text-center mt-4">{successMessage}</p>}
           </div>
           <p className="mt-4 text-center text-gray-600">
-            Don’t have an account?{' '}
+            Don't have an account?{' '}
             <a href="/signup" className="text-indigo-600 hover:text-indigo-700">
               Sign Up
             </a>
