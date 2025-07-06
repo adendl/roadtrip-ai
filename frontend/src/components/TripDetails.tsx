@@ -1,6 +1,6 @@
 import React from 'react';
-import { ChevronDownIcon, MapPinIcon, InformationCircleIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
-import { generateGoogleSearchUrl } from '../utils/googleSearch';
+import { ChevronDownIcon, MapPinIcon, InformationCircleIcon, DocumentTextIcon, HomeIcon } from '@heroicons/react/24/outline';
+import { generateGoogleSearchUrl, openBookingSearch } from '../utils/googleSearch';
 import PDFDownloadButton from './PDFDownloadButton';
 
 interface Location {
@@ -54,18 +54,8 @@ const TripDetails: React.FC<TripDetailsProps> = ({ selectedTrip, selectedDay, se
 
   return (
     <div className="md:w-1/2 p-6 bg-white bg-opacity-10 backdrop-blur-md rounded-lg shadow-lg">
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4">
         <h3 className="text-2xl font-bold">{selectedTrip.from} to {selectedTrip.to}</h3>
-        <PDFDownloadButton 
-          trip={{
-            id: selectedTrip.id,
-            title: `${selectedTrip.from} to ${selectedTrip.to}`,
-            description: `A ${selectedTrip.days}-day trip from ${selectedTrip.from} to ${selectedTrip.to} covering ${selectedTrip.distanceKm.toFixed(1)} km.`,
-            startDate: selectedTrip.createdAt,
-            endDate: selectedTrip.createdAt, // You might want to calculate this based on days
-            dayPlans: days
-          }}
-        />
       </div>
       <div className="space-y-4">
         {days.map((day: DayPlan) => (
@@ -85,6 +75,7 @@ const TripDetails: React.FC<TripDetailsProps> = ({ selectedTrip, selectedDay, se
                 className={`h-5 w-5 text-gray-400 transition-transform duration-300 ${selectedDay && selectedDay.id === day.id ? 'rotate-180' : ''}`}
               />
             </div>
+            
             {selectedDay && selectedDay.id === day.id && (
               <div className="mt-4 space-y-4">
                 <div className="bg-white border border-green-200 rounded-lg p-4 shadow-sm">
@@ -94,6 +85,29 @@ const TripDetails: React.FC<TripDetailsProps> = ({ selectedTrip, selectedDay, se
                       <h6 className="font-semibold text-gray-800 mb-2">Day Overview</h6>
                       <p className="text-gray-700 leading-relaxed">{day.introduction}</p>
                     </div>
+                  </div>
+                </div>
+                
+                {/* Accommodation Search Button */}
+                <div className="bg-white border border-purple-200 rounded-lg p-4 shadow-sm">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <HomeIcon className="h-5 w-5 mr-3 text-purple-600" />
+                      <div>
+                        <h6 className="font-semibold text-gray-800">Need a place to stay?</h6>
+                        <p className="text-gray-600 text-sm">Search for accommodation in {day.finishLocation.name}</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openBookingSearch(day.finishLocation.name);
+                      }}
+                      className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5"
+                    >
+                      <HomeIcon className="h-4 w-4 mr-2" />
+                      Search
+                    </button>
                   </div>
                 </div>
                 
@@ -145,6 +159,23 @@ const TripDetails: React.FC<TripDetailsProps> = ({ selectedTrip, selectedDay, se
             )}
           </div>
         ))}
+      </div>
+      
+      {/* PDF Download Button at the bottom */}
+      <div className="mt-8 pt-6 border-t border-white border-opacity-20">
+        <div className="flex justify-center">
+          <PDFDownloadButton 
+            trip={{
+              id: selectedTrip.id,
+              title: `${selectedTrip.from} to ${selectedTrip.to}`,
+              description: `A ${selectedTrip.days}-day trip from ${selectedTrip.from} to ${selectedTrip.to} covering ${selectedTrip.distanceKm.toFixed(1)} km.`,
+              startDate: selectedTrip.createdAt,
+              endDate: selectedTrip.createdAt, // You might want to calculate this based on days
+              dayPlans: days
+            }}
+            className="px-8 py-3 text-lg"
+          />
+        </div>
       </div>
     </div>
   );

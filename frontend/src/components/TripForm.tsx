@@ -87,7 +87,7 @@ const TripForm: React.FC<TripFormProps> = ({
         setGenerationMessages((prev) => [...prev.slice(-2), aiMessages[messageIndex]]);
         messageIndex++;
       }
-    }, 1000);
+    }, 6000);
 
     return () => clearInterval(interval);
   }, [loading]);
@@ -247,14 +247,14 @@ const TripForm: React.FC<TripFormProps> = ({
           </div>
         </div>
         <div className="mt-6">
-          <Button
-            text={loading ? undefined : 'Generate Your Trip Plan'}
+          <button
             type="submit"
-            variant="primary"
-            className="mt-4 px-6 py-2 text-lg font-roboto bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 rounded-full shadow-md hover:shadow-lg transition-all duration-300"
             disabled={loading || !isFormValid()}
-            icon={loading ? <CogIcon className="h-5 w-5 animate-spin" /> : undefined}
-          />
+            className="mt-4 px-6 py-2 text-lg font-roboto bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-full shadow-md hover:shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+          >
+            {loading && <CogIcon className="h-5 w-5 animate-spin inline mr-2" />}
+            {loading ? undefined : 'Generate Your Trip Plan'}
+          </button>
         </div>
         {error && <p className="text-red-600 text-center mt-2">{error}</p>}
       </form>

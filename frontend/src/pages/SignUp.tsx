@@ -46,7 +46,7 @@ const SignUp: React.FC = () => {
           window.location.href = '/dashboard';
         } else {
           // Redirect to login
-          window.location.href = '/login';
+        window.location.href = '/login';
         }
       }, 2000);
     } catch (error) {

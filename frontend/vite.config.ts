@@ -6,27 +6,27 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   
   return {
-    plugins: [react()],
-    server: {
-      proxy: {
-        '/api': {
+  plugins: [react()],
+  server: {
+    proxy: {
+      '/api': {
           target: env.VITE_API_BASE_URL || 'http://localhost:8080',
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api/, ''), // Remove /api prefix
-        },
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''), // Remove /api prefix
       },
     },
-    build: {
-      outDir: 'dist',
-      rollupOptions: {
-        input: {
-          main: './index.html',
-        },
+  },
+  build: {
+    outDir: 'dist',
+    rollupOptions: {
+      input: {
+        main: './index.html',
       },
     },
-    css: {
-      devSourcemap: true,
-    },
+  },
+  css: {
+    devSourcemap: true,
+  },
     // Define environment variables that will be available at runtime
     define: {
       __APP_VERSION__: JSON.stringify(process.env.npm_package_version),

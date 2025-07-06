@@ -38,17 +38,17 @@ public class TripController {
                    tripRequest.getFromCity(), tripRequest.getToCity(), tripRequest.getDays());
         
         String jwtToken = authorizationHeader.replace("Bearer ", "");
-        Trip trip = tripService.createTrip(
-                jwtToken,
-                tripRequest.getFromCity(),
-                tripRequest.getToCity(),
-                tripRequest.isRoundtrip(),
-                tripRequest.getDays(),
-                tripRequest.getInterests(),
-                tripRequest.getDistanceKm()
-        );
+            Trip trip = tripService.createTrip(
+                    jwtToken,
+                    tripRequest.getFromCity(),
+                    tripRequest.getToCity(),
+                    tripRequest.isRoundtrip(),
+                    tripRequest.getDays(),
+                    tripRequest.getInterests(),
+                    tripRequest.getDistanceKm()
+            );
         logger.info("Successfully created trip with ID: {}", trip.getTripId());
-        return ResponseEntity.ok(trip);
+            return ResponseEntity.ok(trip);
     }
 
     @GetMapping("/user")
@@ -74,7 +74,7 @@ public class TripController {
             @RequestHeader("Authorization") String authorizationHeader) {
         logger.info("Attempting to delete trip with ID: {}", tripId);
         String jwtToken = authorizationHeader.replace("Bearer ", "");
-        boolean success = tripService.deleteTrip(jwtToken, tripId);
+            boolean success = tripService.deleteTrip(jwtToken, tripId);
         if (success) {
             logger.info("Successfully deleted trip with ID: {}", tripId);
             return ResponseEntity.ok().build();

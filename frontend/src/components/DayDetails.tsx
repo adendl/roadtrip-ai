@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { generateGoogleSearchUrl } from '../utils/googleSearch';
+import { generateGoogleSearchUrl, openBookingSearch } from '../utils/googleSearch';
 import { fetchDrivingRoute } from '../utils/routeService';
 
 interface Location {
@@ -103,7 +103,22 @@ const DayDetails: React.FC<DayDetailsProps> = ({ selectedDay }) => {
           <Popup>{selectedDay.startLocation.name}</Popup>
         </Marker>
         <Marker position={finishCoordinates} icon={finishIcon}>
-          <Popup>{selectedDay.finishLocation.name}</Popup>
+          <Popup>
+            <div className="min-w-[200px]">
+              <h3 className="font-bold text-lg mb-2">Day {selectedDay.dayNumber} - End</h3>
+              <p className="font-semibold text-blue-700 mb-2">{selectedDay.finishLocation.name}</p>
+              <p className="text-sm text-gray-600 mb-3">Distance: {selectedDay.distanceKm} km</p>
+              <button
+                onClick={() => openBookingSearch(selectedDay.finishLocation.name)}
+                className="w-full inline-flex items-center justify-center px-3 py-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+              >
+                <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Search Accommodation
+              </button>
+            </div>
+          </Popup>
         </Marker>
         {selectedDay.placesOfInterest.map((poi, index) => (
           <Marker key={index} position={[poi.latitude, poi.longitude]} icon={poiIcon}>

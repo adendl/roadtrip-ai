@@ -26,4 +26,26 @@ export const generateGoogleSearchUrl = (placeName: string, location?: string): s
 export const openGoogleSearch = (placeName: string, location?: string): void => {
   const url = generateGoogleSearchUrl(placeName, location);
   window.open(url, '_blank', 'noopener,noreferrer');
+};
+
+/**
+ * Utility function to generate a Booking.com search URL for accommodation
+ * @param destination - The destination name to search for accommodation
+ * @returns A Booking.com search URL
+ */
+export const generateBookingSearchUrl = (destination: string): string => {
+  // Encode the destination for URL
+  const encodedDestination = encodeURIComponent(destination);
+  
+  // Booking.com search URL format
+  return `https://www.booking.com/search.html?ss=${encodedDestination}`;
+};
+
+/**
+ * Opens a Booking.com search for accommodation in a new tab
+ * @param destination - The destination name to search for accommodation
+ */
+export const openBookingSearch = (destination: string): void => {
+  const url = generateBookingSearchUrl(destination);
+  window.open(url, '_blank', 'noopener,noreferrer');
 }; 

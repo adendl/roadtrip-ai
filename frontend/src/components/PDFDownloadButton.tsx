@@ -60,7 +60,7 @@ const PDFDownloadButton: React.FC<PDFDownloadButtonProps> = ({ trip, className =
     <button
       onClick={handleDownload}
       disabled={isGenerating}
-      className={`inline-flex items-center px-6 py-2 text-lg font-medium bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 disabled:from-gray-400 disabled:to-gray-500 text-white rounded-full shadow-md hover:shadow-lg transition-all duration-300 ${className}`}
+      className={`inline-flex items-center px-6 py-2 text-lg font-medium bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-full shadow-md hover:shadow-lg transition-all duration-300 ${className}`}
     >
       <ArrowDownTrayIcon className="w-5 h-5 mr-2" />
       {isGenerating ? 'Generating PDF...' : 'Download Trip PDF'}
