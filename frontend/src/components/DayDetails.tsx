@@ -83,6 +83,7 @@ const DayDetails: React.FC<DayDetailsProps> = ({ selectedDay }) => {
         zoom={7}
         style={{ height: '50%', width: '100%' }}
         className="w-full"
+        id={`map-day-${selectedDay.dayNumber}`}
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

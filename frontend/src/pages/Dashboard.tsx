@@ -6,6 +6,8 @@ import TripForm from '../components/TripForm';
 import TripCard from '../components/TripCard';
 import TripDetails from '../components/TripDetails';
 import DayDetails from '../components/DayDetails';
+import TripOverviewMap from '../components/TripOverviewMap';
+import PDFDownloadButton from '../components/PDFDownloadButton';
 import { CogIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 import '../styles/leaflet.css';
@@ -232,7 +234,14 @@ const Dashboard: React.FC = () => {
                   setSelectedDay={setSelectedDay}
                 />
                 <div className="md:w-1/2 bg-white rounded-lg shadow-md overflow-hidden min-h-[500px] relative z-0">
-                  {selectedDay && <DayDetails selectedDay={selectedDay} />}
+                  {selectedDay ? (
+                    <DayDetails selectedDay={selectedDay} />
+                  ) : (
+                    <TripOverviewMap 
+                      dayPlans={selectedTrip.tripPlans.length > 0 ? selectedTrip.tripPlans[0].days : []}
+                      tripTitle={`${selectedTrip.from} to ${selectedTrip.to}`}
+                    />
+                  )}
                 </div>
               </div>
             </motion.div>

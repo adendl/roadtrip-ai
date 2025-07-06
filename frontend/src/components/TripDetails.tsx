@@ -1,6 +1,7 @@
 import React from 'react';
 import { ChevronDownIcon, MapPinIcon, InformationCircleIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import { generateGoogleSearchUrl } from '../utils/googleSearch';
+import PDFDownloadButton from './PDFDownloadButton';
 
 interface Location {
   name: string;
@@ -53,7 +54,19 @@ const TripDetails: React.FC<TripDetailsProps> = ({ selectedTrip, selectedDay, se
 
   return (
     <div className="md:w-1/2 p-6 bg-white bg-opacity-10 backdrop-blur-md rounded-lg shadow-lg">
-      <h3 className="text-2xl font-bold mb-2">{selectedTrip.from} to {selectedTrip.to}</h3>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-2xl font-bold">{selectedTrip.from} to {selectedTrip.to}</h3>
+        <PDFDownloadButton 
+          trip={{
+            id: selectedTrip.id,
+            title: `${selectedTrip.from} to ${selectedTrip.to}`,
+            description: `A ${selectedTrip.days}-day trip from ${selectedTrip.from} to ${selectedTrip.to} covering ${selectedTrip.distanceKm.toFixed(1)} km.`,
+            startDate: selectedTrip.createdAt,
+            endDate: selectedTrip.createdAt, // You might want to calculate this based on days
+            dayPlans: days
+          }}
+        />
+      </div>
       <div className="space-y-4">
         {days.map((day: DayPlan) => (
           <div
