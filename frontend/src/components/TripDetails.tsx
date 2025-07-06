@@ -1,5 +1,6 @@
 import React from 'react';
-import { ChevronDownIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, MapPinIcon, InformationCircleIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import { generateGoogleSearchUrl } from '../utils/googleSearch';
 
 interface Location {
   name: string;
@@ -72,17 +73,60 @@ const TripDetails: React.FC<TripDetailsProps> = ({ selectedTrip, selectedDay, se
               />
             </div>
             {selectedDay && selectedDay.id === day.id && (
-              <div className="mt-2 space-y-2">
-                <p>Introduction: {day.introduction}</p>
+              <div className="mt-4 space-y-4">
+                <div className="bg-white border border-green-200 rounded-lg p-4 shadow-sm">
+                  <div className="flex items-start">
+                    <DocumentTextIcon className="h-5 w-5 mr-3 text-green-600 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <h6 className="font-semibold text-gray-800 mb-2">Day Overview</h6>
+                      <p className="text-gray-700 leading-relaxed">{day.introduction}</p>
+                    </div>
+                  </div>
+                </div>
+                
                 <div>
-                  <h5 className="font-medium">Places of Interest:</h5>
-                  <ul className="list-disc list-inside">
+                  <h5 className="font-semibold text-gray-800 mb-3 flex items-center">
+                    <MapPinIcon className="h-5 w-5 mr-2 text-blue-600" />
+                    Places of Interest
+                  </h5>
+                  <div className="grid gap-3">
                     {day.placesOfInterest.map((poi: PlaceOfInterest, index: number) => (
-                      <li key={index}>
-                        {poi.name}: {poi.description}
-                      </li>
+                      <div 
+                        key={index}
+                        className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 hover:shadow-md transition-all duration-200"
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <a
+                              href={generateGoogleSearchUrl(poi.name, `${day.startLocation.name} ${day.finishLocation.name}`)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-700 hover:text-blue-900 font-semibold text-lg hover:underline transition-colors duration-200 flex items-center"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <MapPinIcon className="h-4 w-4 mr-2 text-blue-600" />
+                              {poi.name}
+                            </a>
+                            <div className="mt-2 flex items-start">
+                              <InformationCircleIcon className="h-4 w-4 mr-2 text-gray-500 mt-0.5 flex-shrink-0" />
+                              <p className="text-gray-700 text-sm leading-relaxed">{poi.description}</p>
+                            </div>
+                          </div>
+                          <div className="ml-3">
+                            <a
+                              href={generateGoogleSearchUrl(poi.name, `${day.startLocation.name} ${day.finishLocation.name}`)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-full transition-colors duration-200"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              Search
+                            </a>
+                          </div>
+                        </div>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 </div>
               </div>
             )}

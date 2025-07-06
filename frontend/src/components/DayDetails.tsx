@@ -1,7 +1,9 @@
-import React, { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import React, { useEffect, useState } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import { generateGoogleSearchUrl } from '../utils/googleSearch';
+import { fetchDrivingRoute } from '../utils/routeService';
 
 interface Location {
   name: string;
@@ -31,12 +33,12 @@ interface DayDetailsProps {
 }
 
 // Custom icons for different marker types
-const createCustomIcon = (color: string) => {
+const createCustomIcon = (color: string, size: number = 12) => {
   return L.divIcon({
     className: 'custom-marker',
-    html: `<div style="background-color: ${color}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 3px rgba(0,0,0,0.3);"></div>`,
-    iconSize: [12, 12],
-    iconAnchor: [6, 6],
+    html: `<div style="background-color: ${color}; width: ${size}px; height: ${size}px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 3px rgba(0,0,0,0.3);"></div>`,
+    iconSize: [size, size],
+    iconAnchor: [size/2, size/2],
   });
 };
 
@@ -46,26 +48,56 @@ const DayDetails: React.FC<DayDetailsProps> = ({ selectedDay }) => {
   const midCoordinates: [number, number] = [midLatitude, midLongitude];
 
   const startCoordinates: [number, number] = [selectedDay.startLocation.latitude, selectedDay.startLocation.longitude];
-  const finishCoordinates: [number, number] = [selectedDay.finishLocation.latitude, selectedDay.finishLocation.latitude];
+  const finishCoordinates: [number, number] = [selectedDay.finishLocation.latitude, selectedDay.finishLocation.longitude];
 
-  // Custom icons
-  const startIcon = createCustomIcon('green');
-  const finishIcon = createCustomIcon('red');
-  const poiIcon = createCustomIcon('blue');
+  // Custom icons - larger for start/end, smaller for places of interest
+  const startIcon = createCustomIcon('#10B981', 20); // Green, larger
+  const finishIcon = createCustomIcon('#EF4444', 20); // Red, larger
+  const poiIcon = createCustomIcon('#3B82F6', 10); // Blue, smaller
 
+  const [routeCoordinates, setRouteCoordinates] = useState<[number, number][]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRoute = async () => {
+      try {
+        const route = await fetchDrivingRoute(
+          { latitude: selectedDay.startLocation.latitude, longitude: selectedDay.startLocation.longitude },
+          { latitude: selectedDay.finishLocation.latitude, longitude: selectedDay.finishLocation.longitude }
+        );
+        setRouteCoordinates(route);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching route:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchRoute();
+  }, [selectedDay.startLocation.latitude, selectedDay.startLocation.longitude, selectedDay.finishLocation.latitude, selectedDay.finishLocation.longitude]);
 
   return (
-    <div className="h-72 w-full rounded overflow-hidden">
+    <div className="w-full h-full rounded overflow-hidden relative z-0">
       <MapContainer
         center={midCoordinates}
         zoom={7}
-        style={{ height: '100%', width: '100%' }}
-        className="w-full h-full"
+        style={{ height: '50%', width: '100%' }}
+        className="w-full"
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
+        
+        {/* Route line between start and end */}
+        <Polyline
+          positions={routeCoordinates.length > 0 ? routeCoordinates : [startCoordinates, finishCoordinates]}
+          color="#3B82F6"
+          weight={3}
+          opacity={0.8}
+          dashArray={routeCoordinates.length > 0 ? undefined : "10, 5"}
+        />
+        
         <Marker position={startCoordinates} icon={startIcon}>
           <Popup>{selectedDay.startLocation.name}</Popup>
         </Marker>
@@ -74,10 +106,60 @@ const DayDetails: React.FC<DayDetailsProps> = ({ selectedDay }) => {
         </Marker>
         {selectedDay.placesOfInterest.map((poi, index) => (
           <Marker key={index} position={[poi.latitude, poi.longitude]} icon={poiIcon}>
-            <Popup>{poi.name}</Popup>
+            <Popup>
+              <div className="min-w-[200px]">
+                <a
+                  href={generateGoogleSearchUrl(poi.name, `${selectedDay.startLocation.name} ${selectedDay.finishLocation.name}`)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-700 hover:text-blue-900 font-semibold text-base hover:underline transition-colors duration-200 block mb-2"
+                >
+                  {poi.name}
+                </a>
+                <p className="text-sm text-gray-600 leading-relaxed">{poi.description}</p>
+                <div className="mt-2">
+                  <a
+                    href={generateGoogleSearchUrl(poi.name, `${selectedDay.startLocation.name} ${selectedDay.finishLocation.name}`)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-2 py-1 text-xs font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-full transition-colors duration-200"
+                  >
+                    Search on Google
+                  </a>
+                </div>
+              </div>
+            </Popup>
           </Marker>
         ))}
       </MapContainer>
+      
+      {/* Map Legend */}
+      <div className="bg-white border-t border-gray-200 p-4 shadow-sm">
+        <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center">
+          <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+          </svg>
+          Map Legend
+        </h3>
+        <div className="flex flex-wrap gap-4">
+          <div className="flex items-center">
+            <div className="w-5 h-5 rounded-full bg-green-500 border-2 border-white shadow-sm mr-2"></div>
+            <span className="text-sm text-gray-600">Start Location</span>
+          </div>
+          <div className="flex items-center">
+            <div className="w-5 h-5 rounded-full bg-red-500 border-2 border-white shadow-sm mr-2"></div>
+            <span className="text-sm text-gray-600">End Location</span>
+          </div>
+          <div className="flex items-center">
+            <div className="w-3 h-3 rounded-full bg-blue-500 border-2 border-white shadow-sm mr-2"></div>
+            <span className="text-sm text-gray-600">Places of Interest</span>
+          </div>
+          <div className="flex items-center">
+            <div className="w-8 h-0.5 bg-blue-500 border-dashed border-blue-500 mr-2" style={{ borderStyle: 'dashed' }}></div>
+            <span className="text-sm text-gray-600">Route</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

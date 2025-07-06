@@ -15,7 +15,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   return (
-    <header className={`fixed w-full bg-gray-600 bg-opacity-70 backdrop-blur-md z-50 ${className || ''}`}> {/* Changed to dark transparent */}
+    <header className={`fixed w-full bg-gray-600 bg-opacity-70 backdrop-blur-md z-[9999] ${className || ''}`}> {/* Changed to dark transparent */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
         <div className="text-2xl font-bold text-white"><a href="/">Roadtrip.ai</a></div>
         <nav className="flex items-center space-x-6">

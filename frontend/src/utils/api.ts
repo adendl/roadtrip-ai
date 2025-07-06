@@ -1,7 +1,7 @@
 // API configuration utility
 export const API_CONFIG = {
-  BASE_URL: (window as any).RUNTIME_CONFIG?.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE_URL || window.location.origin,
-  ENV: (window as any).RUNTIME_CONFIG?.VITE_APP_ENV || import.meta.env.VITE_APP_ENV || 'production'
+  BASE_URL: import.meta.env.VITE_API_BASE_URL || (window as any).RUNTIME_CONFIG?.VITE_API_BASE_URL || 'http://localhost:8080',
+  ENV: import.meta.env.VITE_APP_ENV || (window as any).RUNTIME_CONFIG?.VITE_APP_ENV || 'development'
 };
 
 // Helper function to build API URLs

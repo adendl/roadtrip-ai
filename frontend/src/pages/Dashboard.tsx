@@ -231,7 +231,7 @@ const Dashboard: React.FC = () => {
                   selectedDay={selectedDay}
                   setSelectedDay={setSelectedDay}
                 />
-                <div className="md:w-1/2 p-6 bg-white rounded-lg shadow-md">
+                <div className="md:w-1/2 bg-white rounded-lg shadow-md overflow-hidden min-h-[500px] relative z-0">
                   {selectedDay && <DayDetails selectedDay={selectedDay} />}
                 </div>
               </div>
