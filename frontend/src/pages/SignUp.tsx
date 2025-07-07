@@ -3,6 +3,7 @@ import Button from '../components/Button';
 import Header from '../components/Header';
 import axios from 'axios';
 import { motion } from 'framer-motion';
+import { buildApiUrl, API_ENDPOINTS } from '../utils/api';
 
 const SignUp: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -31,7 +32,7 @@ const SignUp: React.FC = () => {
     }
 
     try {
-      const response = await axios.post(`https://roadtrip-ai-backend-688052801817.australia-southeast1.run.app/api/users/register`, {
+      const response = await axios.post(buildApiUrl(API_ENDPOINTS.SIGNUP), {
         username,
         email,
         password,
