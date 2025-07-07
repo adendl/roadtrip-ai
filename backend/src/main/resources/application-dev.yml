@@ -2,9 +2,6 @@
 # Uses H2 in-memory database for testing and development
 
 spring:
-  profiles:
-    active: dev
-  
   # H2 Database Configuration
   datasource:
     url: jdbc:h2:mem:testdb

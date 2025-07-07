@@ -2,9 +2,6 @@
 # Uses PostgreSQL database and production-optimized settings
 
 spring:
-  profiles:
-    active: prod
-  
   # PostgreSQL Database Configuration
   datasource:
     url: ${DATABASE_URL}
