@@ -30,7 +30,21 @@ steps:
     waitFor: ['build-backend']
 
   # ========================================
-  # STAGE 2: BUILD FRONTEND
+  # STAGE 2: TEST FRONTEND (Jest)
+  # ========================================
+  - name: 'node:20-alpine'
+    id: 'test-frontend'
+    entrypoint: 'sh'
+    args:
+      - -c
+      - |
+        cd frontend
+        npm ci
+        npm run test -- --ci --passWithNoTests
+    waitFor: ['test-backend']
+
+  # ========================================
+  # STAGE 3: BUILD FRONTEND
   # ========================================
   - name: 'gcr.io/cloud-builders/docker'
     id: 'build-frontend'
@@ -42,10 +56,10 @@ steps:
       '--build-arg', 'BUILDKIT_INLINE_CACHE=1',
       'frontend/'
     ]
-    waitFor: ['test-backend']
+    waitFor: ['test-frontend']
 
   # ========================================
-  # STAGE 3: PUSH IMAGES TO REGISTRY
+  # STAGE 4: PUSH IMAGES TO REGISTRY
   # ========================================
   - name: 'gcr.io/cloud-builders/docker'
     id: 'push-backend'
@@ -58,7 +72,7 @@ steps:
     waitFor: ['build-frontend']
 
   # ========================================
-  # STAGE 4: DEPLOY TO DEV ENVIRONMENT
+  # STAGE 5: DEPLOY TO DEV ENVIRONMENT
   # ========================================
   # Deploy backend to dev with H2 database
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -136,7 +150,7 @@ steps:
     waitFor: ['deploy-frontend-dev']
 
   # ========================================
-  # STAGE 5: DEV ENVIRONMENT TESTS
+  # STAGE 6: DEV ENVIRONMENT TESTS
   # ========================================
   # Run integration tests against dev environment
   - name: 'curlimages/curl'
@@ -162,7 +176,7 @@ steps:
     waitFor: ['update-frontend-dev-url']
 
   # ========================================
-  # STAGE 6: DEPLOY TO PROD (if dev tests pass)
+  # STAGE 7: DEPLOY TO PROD (if dev tests pass)
   # ========================================
   # Deploy backend to prod with PostgreSQL
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -240,7 +254,7 @@ steps:
     waitFor: ['deploy-frontend-prod']
 
   # ========================================
-  # STAGE 7: FINAL PROD TESTS
+  # STAGE 8: FINAL PROD TESTS
   # ========================================
   - name: 'curlimages/curl'
     id: 'test-prod-environment'
