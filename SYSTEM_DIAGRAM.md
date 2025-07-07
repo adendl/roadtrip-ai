@@ -356,6 +356,185 @@ graph TB
     class DevFrontend,DevBackend,DevDatabase development
 ```
 
+## API-Database Interaction Diagram
+
+```mermaid
+graph TB
+    subgraph "Frontend Layer"
+        ReactApp["⚛️ React Frontend<br/>User Interface"]
+    end
+    
+    subgraph "API Layer"
+        AuthAPI["🔐 Authentication API<br/>/api/users/*"]
+        TripAPI["🚗 Trip Management API<br/>/api/trips/*"]
+    end
+    
+    subgraph "Service Layer"
+        UserService["👤 User Service<br/>Business Logic"]
+        TripService["🚗 Trip Service<br/>AI Integration"]
+    end
+    
+    subgraph "Repository Layer"
+        UserRepo["🗄️ User Repository<br/>Data Access"]
+        TripRepo["🗄️ Trip Repository<br/>Data Access"]
+        TripPlanRepo["🗄️ Trip Plan Repository<br/>Data Access"]
+        DayPlanRepo["🗄️ Day Plan Repository<br/>Data Access"]
+        PlaceRepo["🗄️ Place Repository<br/>Data Access"]
+    end
+    
+    subgraph "Database Schema"
+        subgraph "Users Table"
+            Users[("👤 users<br/>id (PK)<br/>username (UK)<br/>email (UK)<br/>password<br/>created_at")]
+        end
+        
+        subgraph "Trips Table"
+            Trips[("🚗 trips<br/>trip_id (PK)<br/>from_city<br/>to_city<br/>roundtrip<br/>days<br/>distance_km<br/>created_at<br/>user_id (FK)")]
+        end
+        
+        subgraph "Trip Plans Table"
+            TripPlans[("📋 trip_plans<br/>id (PK)<br/>trip_id (FK)")]
+        end
+        
+        subgraph "Day Plans Table"
+            DayPlans[("📅 day_plans<br/>id (PK)<br/>trip_plan_id (FK)<br/>day_number<br/>start_name<br/>start_lat/lng<br/>finish_name<br/>finish_lat/lng<br/>distance_km<br/>introduction")]
+        end
+        
+        subgraph "Places of Interest Table"
+            Places[("📍 places_of_interest<br/>id (PK)<br/>day_plan_id (FK)<br/>name<br/>description<br/>latitude<br/>longitude")]
+        end
+        
+        subgraph "Trip Interests Table"
+            Interests[("🎯 trip_interests<br/>trip_id (FK)<br/>interest")]
+        end
+    end
+    
+    subgraph "External Services"
+        OpenAI["🤖 OpenAI GPT-4<br/>AI Trip Generation"]
+        GraphHopper["🗺️ GraphHopper API<br/>Route Calculation"]
+    end
+    
+    %% API to Service connections
+    AuthAPI --> UserService
+    TripAPI --> TripService
+    
+    %% Service to Repository connections
+    UserService --> UserRepo
+    TripService --> TripRepo
+    TripService --> TripPlanRepo
+    TripService --> DayPlanRepo
+    TripService --> PlaceRepo
+    
+    %% Repository to Database connections
+    UserRepo --> Users
+    TripRepo --> Trips
+    TripPlanRepo --> TripPlans
+    DayPlanRepo --> DayPlans
+    PlaceRepo --> Places
+    TripRepo --> Interests
+    
+    %% External API connections
+    TripService --> OpenAI
+    TripService --> GraphHopper
+    
+    %% Database relationships
+    Users -.->|1:N| Trips
+    Trips -.->|1:1| TripPlans
+    TripPlans -.->|1:N| DayPlans
+    DayPlans -.->|1:N| Places
+    Trips -.->|1:N| Interests
+    
+    %% Styling
+    classDef frontend fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#000
+    classDef api fill:#f3e5f5,stroke:#4a148c,stroke-width:2px,color:#000
+    classDef service fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px,color:#000
+    classDef repository fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    classDef database fill:#fce4ec,stroke:#880e4f,stroke-width:2px,color:#000
+    classDef external fill:#e0f2f1,stroke:#004d40,stroke-width:2px,color:#000
+    
+    class ReactApp frontend
+    class AuthAPI,TripAPI api
+    class UserService,TripService service
+    class UserRepo,TripRepo,TripPlanRepo,DayPlanRepo,PlaceRepo repository
+    class Users,Trips,TripPlans,DayPlans,Places,Interests database
+    class OpenAI,GraphHopper external
+```
+
+## API Endpoint Details
+
+### Authentication Endpoints
+| Method | Endpoint | Description | Database Operations |
+|--------|----------|-------------|-------------------|
+| `POST` | `/api/users/register` | User registration | `INSERT INTO users` |
+| `POST` | `/api/users/login` | User authentication | `SELECT FROM users WHERE username` |
+| `GET` | `/api/users/me` | Get current user | `SELECT FROM users WHERE id` |
+
+### Trip Management Endpoints
+| Method | Endpoint | Description | Database Operations |
+|--------|----------|-------------|-------------------|
+| `POST` | `/api/trips/create` | Create new trip | `INSERT INTO trips`, `trip_plans`, `day_plans`, `places_of_interest`, `trip_interests` |
+| `GET` | `/api/trips/user` | Get user's trips | `SELECT FROM trips WHERE user_id` with JOINs |
+| `DELETE` | `/api/trips/{id}` | Delete trip | `DELETE FROM trips` (cascades to related tables) |
+
+## Database Operations Flow
+
+### Trip Creation Process
+```mermaid
+sequenceDiagram
+    participant F as Frontend
+    participant API as Trip API
+    participant S as Trip Service
+    participant AI as OpenAI
+    participant R as GraphHopper
+    participant DB as Database
+    
+    F->>API: POST /api/trips/create
+    API->>S: Create Trip Request
+    S->>AI: Generate Itinerary
+    AI-->>S: AI Response
+    S->>R: Calculate Routes
+    R-->>S: Route Data
+    S->>DB: INSERT INTO trips
+    S->>DB: INSERT INTO trip_plans
+    S->>DB: INSERT INTO day_plans
+    S->>DB: INSERT INTO places_of_interest
+    S->>DB: INSERT INTO trip_interests
+    S-->>API: Complete Trip Data
+    API-->>F: Trip Response
+```
+
+### Data Retrieval Process
+```mermaid
+sequenceDiagram
+    participant F as Frontend
+    participant API as Trip API
+    participant S as Trip Service
+    participant DB as Database
+    
+    F->>API: GET /api/trips/user
+    API->>S: Get User Trips
+    S->>DB: SELECT trips WHERE user_id
+    S->>DB: JOIN trip_plans, day_plans, places_of_interest
+    DB-->>S: Trip Data
+    S-->>API: Formatted Trip Data
+    API-->>F: Trip List Response
+```
+
+## Database Schema Relationships
+
+### Primary Relationships
+- **Users** (1) → **Trips** (N): One user can have many trips
+- **Trips** (1) → **Trip Plans** (1): Each trip has one trip plan
+- **Trip Plans** (1) → **Day Plans** (N): Each trip plan has multiple day plans
+- **Day Plans** (1) → **Places of Interest** (N): Each day has multiple places
+- **Trips** (1) → **Trip Interests** (N): Each trip has multiple interests
+
+### Foreign Key Constraints
+- `trips.user_id` → `users.id`
+- `trip_plans.trip_id` → `trips.trip_id`
+- `day_plans.trip_plan_id` → `trip_plans.id`
+- `places_of_interest.day_plan_id` → `day_plans.id`
+- `trip_interests.trip_id` → `trips.trip_id`
+
 ## API Endpoints
 
 ### Authentication
