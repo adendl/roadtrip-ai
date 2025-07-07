@@ -8,58 +8,66 @@ Roadtrip.ai is a full-stack AI-powered road trip planning application that gener
 ```mermaid
 graph TB
     %% External Users
-    User[👤 User] --> Browser[🌐 Web Browser]
+    User["👤 User"] --> Browser["🌐 Web Browser"]
     
     %% Frontend Layer
-    Browser --> Frontend["⚛️ React Frontend<br/>TypeScript + Vite"]
-    Frontend --> AuthContext["🔐 Auth Context<br/>JWT Management"]
-    Frontend --> Components["🧩 React Components<br/>Pages, Forms, Maps"]
+    Browser --> Frontend["⚛️ React Frontend\nTypeScript + Vite"]
+    Frontend --> AuthContext["🔐 Auth Context\nJWT Management"]
+    Frontend --> Components["🧩 React Components\nPages, Forms, Maps"]
     
     %% Frontend Components
-    Components --> HomePage["🏠 Home Page<br/>Trip Form"]
-    Components --> Dashboard["📊 Dashboard<br/>Trip Management"]
+    Components --> HomePage["🏠 Home Page\nTrip Form"]
+    Components --> Dashboard["📊 Dashboard\nTrip Management"]
     Components --> LoginPage["🔑 Login/Signup"]
-    Components --> TripDetails["🗺️ Trip Details<br/>Interactive Maps"]
+    Components --> TripDetails["🗺️ Trip Details\nInteractive Maps"]
     
     %% Frontend Utilities
-    Frontend --> Utils["🛠️ Utilities<br/>API, PDF, Maps"]
-    Utils --> APIClient["📡 API Client<br/>Axios"]
-    Utils --> PDFGenerator["📄 PDF Generator<br/>jsPDF"]
-    Utils --> MapUtils["🗺️ Map Utils<br/>Leaflet.js"]
+    Frontend --> Utils["🛠️ Utilities\nAPI, PDF, Maps"]
+    Utils --> APIClient["📡 API Client\nAxios"]
+    Utils --> PDFGenerator["📄 PDF Generator\njsPDF"]
+    Utils --> MapUtils["🗺️ Map Utils\nLeaflet.js"]
     
     %% API Gateway/Load Balancer
-    Frontend --> Nginx["🌐 Nginx<br/>Reverse Proxy"]
-    Nginx --> Backend["☕ Spring Boot Backend<br/>Java 21"]
+    Frontend --> Nginx["🌐 Nginx\nReverse Proxy"]
+    Nginx --> Backend["☕ Spring Boot Backend\nJava 21"]
     
     %% Backend Layer
-    Backend --> Controllers["🎮 Controllers<br/>REST API Endpoints"]
-    Backend --> Services["⚙️ Services<br/>Business Logic"]
-    Backend --> Repositories["🗄️ Repositories<br/>Data Access"]
-    Backend --> Security["🔒 Security<br/>JWT + Spring Security"]
+    Backend --> Controllers["🎮 Controllers\nREST API Endpoints"]
+    Backend --> Services["⚙️ Services\nBusiness Logic"]
+    Backend --> Repositories["🗄️ Repositories\nData Access"]
+    Backend --> Security["🔒 Security\nJWT + Spring Security"]
     
     %% Backend Components
-    Controllers --> TripController["🚗 Trip Controller<br/>/api/trips/*"]
-    Controllers --> UserController["👤 User Controller<br/>/api/users/*"]
+    Controllers --> TripController["🚗 TripController"]
+    Controllers --> UserController["👤 UserController"]
     
-    Services --> TripService["🚗 Trip Service<br/>AI Integration"]
-    Services --> UserService["👤 User Service<br/>Authentication"]
+    Services --> TripService["🚗 TripService"]
+    Services --> UserService["👤 UserService"]
     
-    Repositories --> TripRepo["🗄️ Trip Repository"]
-    Repositories --> UserRepo["🗄️ User Repository"]
-    Repositories --> TripPlanRepo["🗄️ Trip Plan Repository"]
-    Repositories --> DayPlanRepo["🗄️ Day Plan Repository"]
+    Repositories --> TripRepo["🗄️ TripRepository"]
+    Repositories --> UserRepo["🗄️ UserRepository"]
+    Repositories --> TripPlanRepo["🗄️ TripPlanRepository"]
+    Repositories --> DayPlanRepo["🗄️ DayPlanRepository"]
+    Repositories --> PlaceOfInterestRepo["🗄️ PlaceOfInterestRepository"]
+    
+    %% Model Layer
+    TripRepo --> TripModel["🚗 Trip"]
+    UserRepo --> UserModel["👤 User"]
+    TripPlanRepo --> TripPlanModel["📋 TripPlan"]
+    DayPlanRepo --> DayPlanModel["📅 DayPlan"]
+    PlaceOfInterestRepo --> PlaceOfInterestModel["📍 PlaceOfInterest"]
     
     %% Database Layer
-    Repositories --> Database[("🐘 PostgreSQL<br/>Primary Database")]
+    Repositories --> Database[("🐘 PostgreSQL\nPrimary Database")]
     
     %% External APIs
-    TripService --> OpenAI["🤖 OpenAI GPT-4<br/>AI Trip Generation"]
-    TripService --> GraphHopper["🗺️ GraphHopper API<br/>Route Calculation"]
-    TripService --> OSRM["🗺️ OSRM API<br/>Alternative Routing"]
+    TripService --> OpenAI["🤖 OpenAI GPT-4\nAI Trip Generation"]
+    TripService --> GraphHopper["🗺️ GraphHopper API\nRoute Calculation"]
+    TripService --> OSRM["🗺️ OSRM API\nAlternative Routing"]
     
     %% Infrastructure
-    Backend --> Logging["📝 Logging<br/>Log4j2"]
-    Backend --> Monitoring["📊 Monitoring<br/>Spring Actuator"]
+    Backend --> Logging["📝 Logging\nLog4j2"]
+    Backend --> Monitoring["📊 Monitoring\nSpring Actuator"]
     
     %% Styling
     classDef frontend fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#000
@@ -67,12 +75,14 @@ graph TB
     classDef database fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px,color:#000
     classDef external fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
     classDef infrastructure fill:#fce4ec,stroke:#880e4f,stroke-width:2px,color:#000
+    classDef model fill:#fffde7,stroke:#fbc02d,stroke-width:2px,color:#000
     
     class Frontend,AuthContext,Components,HomePage,Dashboard,LoginPage,TripDetails,Utils,APIClient,PDFGenerator,MapUtils frontend
-    class Backend,Controllers,Services,Repositories,Security,TripController,UserController,TripService,UserService,TripRepo,UserRepo,TripPlanRepo,DayPlanRepo backend
+    class Backend,Controllers,Services,Repositories,Security,TripController,UserController,TripService,UserService,TripRepo,UserRepo,TripPlanRepo,DayPlanRepo,PlaceOfInterestRepo backend
     class Database database
     class OpenAI,GraphHopper,OSRM external
     class Nginx,Logging,Monitoring infrastructure
+    class TripModel,UserModel,TripPlanModel,DayPlanModel,PlaceOfInterestModel model
 ```
 
 ## Data Flow Architecture
