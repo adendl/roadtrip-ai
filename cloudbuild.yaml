@@ -195,7 +195,7 @@ steps:
         cd frontend
         npm ci
         frontend_url_local=$(gcloud run services describe roadtrip-ai-frontend-dev --region=australia-southeast1 --format='value(status.url)')
-        npx playwright test --project=chromium --reporter=dot --base-url="$frontend_url_local"
+        PLAYWRIGHT_BASE_URL="$frontend_url_local" npx playwright test --project=chromium --reporter=dot
     waitFor: ['e2e-playwright-debug']
 
   # ========================================

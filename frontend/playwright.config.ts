@@ -5,7 +5,8 @@ export default defineConfig({
   timeout: 30000,
   retries: 1,
   use: {
-    baseURL: 'https://roadtrip-ai-dev.web.app',
+    // Default baseURL for local development. Can be overridden with --base-url in CI/CD.
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:5173',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
