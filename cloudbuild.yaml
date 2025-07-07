@@ -175,6 +175,18 @@ steps:
   # STAGE 6b: E2E TESTS WITH PLAYWRIGHT
   # ========================================
   - name: 'mcr.microsoft.com/playwright:v1.43.1-jammy'
+    id: 'e2e-playwright-debug'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        cd frontend
+        npm ci
+        npx playwright --version
+        npx playwright test --help
+    waitFor: ['test-dev-environment']
+
+  - name: 'mcr.microsoft.com/playwright:v1.43.1-jammy'
     id: 'e2e-playwright'
     entrypoint: 'bash'
     args:
@@ -184,7 +196,7 @@ steps:
         npm ci
         frontend_url_local=$(gcloud run services describe roadtrip-ai-frontend-dev --region=australia-southeast1 --format='value(status.url)')
         npx playwright test --project=chromium --reporter=dot --base-url="$frontend_url_local"
-    waitFor: ['test-dev-environment']
+    waitFor: ['e2e-playwright-debug']
 
   # ========================================
   # STAGE 7: DEPLOY TO PROD (if dev tests pass)
