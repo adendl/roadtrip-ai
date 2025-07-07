@@ -153,7 +153,7 @@ steps:
   # STAGE 6: DEV ENVIRONMENT TESTS
   # ========================================
   # Run integration tests against dev environment
-  - name: 'curlimages/curl'
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     id: 'test-dev-environment'
     entrypoint: 'bash'
     args:
@@ -161,17 +161,13 @@ steps:
       - |
         frontend_url_local=$(gcloud run services describe roadtrip-ai-frontend-dev --region=australia-southeast1 --format='value(status.url)')
         backend_url_local=$(gcloud run services describe roadtrip-ai-backend-dev --region=australia-southeast1 --format='value(status.url)')
-        
         echo "Testing dev environment..."
         echo "Frontend URL: $frontend_url_local"
         echo "Backend URL: $backend_url_local"
-        
         # Test backend health
         curl -f "$backend_url_local/actuator/health" || exit 1
-        
         # Test frontend loads
         curl -f "$frontend_url_local" || exit 1
-        
         echo "Dev environment tests passed!"
     waitFor: ['update-frontend-dev-url']
 
