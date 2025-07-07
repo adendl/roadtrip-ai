@@ -13,8 +13,10 @@ test.describe.serial('Authentication Flows', () => {
     await page.fill('input[placeholder="Email"]', testUser.email);
     await page.fill('input[placeholder="Password"]', testUser.password);
     await page.click('button:has-text("Sign Up")');
-    // Expect redirect to /login (unless pendingTripData is set, which is not the case in this test)
-    await expect(page).toHaveURL(/login/);
+    // Wait for the success message to appear
+    await expect(page.locator('text=Registration Successful!')).toBeVisible();
+    // Wait for the redirect to /login (allow up to 4 seconds for the 2s delay)
+    await expect(page).toHaveURL(/login/, { timeout: 4000 });
     // Wait for DB to persist user (increased to 5 seconds)
     await page.waitForTimeout(5000);
     console.log('Signed up user:', testUser);
