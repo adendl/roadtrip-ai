@@ -310,20 +310,18 @@ graph TB
             UbuntuVM["🖥️ Ubuntu VM<br/>Compute Engine<br/>PostgreSQL Database<br/>Persistent Storage"]
         end
         
-    end
-    
-    subgraph "External APIs"
-        OpenAI["🤖 OpenAI GPT-4<br/>AI Trip Generation<br/>Third-party Service"]
-        GraphHopper["🗺️ GraphHopper API<br/>Route Calculation<br/>Third-party Service"]
-        OSRM["🗺️ OSRM API<br/>Alternative Routing<br/>Third-party Service"]
-    end
-        
         subgraph "Google Cloud Services"
             LoadBalancer["🌐 Cloud Load Balancer<br/>HTTPS/TLS Termination<br/>Traffic Distribution"]
             CloudDNS["🌍 Cloud DNS<br/>Domain Management<br/>SSL Certificates"]
             CloudLogging["📝 Cloud Logging<br/>Centralized Logs<br/>Monitoring"]
             CloudMonitoring["📊 Cloud Monitoring<br/>Metrics & Alerts<br/>Performance Tracking"]
         end
+    end
+    
+    subgraph "External APIs"
+        OpenAI["🤖 OpenAI GPT-4<br/>AI Trip Generation<br/>Third-party Service"]
+        GraphHopper["🗺️ GraphHopper API<br/>Route Calculation<br/>Third-party Service"]
+        OSRM["🗺️ OSRM API<br/>Alternative Routing<br/>Third-party Service"]
     end
     
     subgraph "Development Environment"
