@@ -333,6 +333,7 @@ graph TB
     %% Production Flow
     LoadBalancer --> FrontendService
     LoadBalancer --> BackendService
+    FrontendService --> BackendService
     BackendService --> UbuntuVM
     BackendService --> OpenAI
     BackendService --> GraphHopper
