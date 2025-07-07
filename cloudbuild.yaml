@@ -10,7 +10,7 @@ steps:
     id: 'build-backend'
     args: [
       'build',
-      '-t', 'gcr.io/$PROJECT_ID/roadtrip-ai-backend:$COMMIT_SHA',
+      '-t', 'australia-southeast1-docker.pkg.dev/$PROJECT_ID/roadtrip-docker-repo/roadtrip-ai-backend:$COMMIT_SHA',
       '-t', 'gcr.io/$PROJECT_ID/roadtrip-ai-backend:latest',
       '-f', 'backend/Dockerfile',
       '--build-arg', 'BUILDKIT_INLINE_CACHE=1',
@@ -50,7 +50,7 @@ steps:
     id: 'build-frontend'
     args: [
       'build',
-      '-t', 'gcr.io/$PROJECT_ID/roadtrip-ai-frontend:$COMMIT_SHA',
+      '-t', 'australia-southeast1-docker.pkg.dev/$PROJECT_ID/roadtrip-docker-repo/roadtrip-ai-frontend:$COMMIT_SHA',
       '-t', 'gcr.io/$PROJECT_ID/roadtrip-ai-frontend:latest',
       '-f', 'frontend/Dockerfile',
       '--build-arg', 'BUILDKIT_INLINE_CACHE=1',
@@ -63,12 +63,12 @@ steps:
   # ========================================
   - name: 'gcr.io/cloud-builders/docker'
     id: 'push-backend'
-    args: ['push', 'gcr.io/$PROJECT_ID/roadtrip-ai-backend:$COMMIT_SHA']
+    args: ['push', 'australia-southeast1-docker.pkg.dev/$PROJECT_ID/roadtrip-docker-repo/roadtrip-ai-backend:$COMMIT_SHA']
     waitFor: ['build-backend']
 
   - name: 'gcr.io/cloud-builders/docker'
     id: 'push-frontend'
-    args: ['push', 'gcr.io/$PROJECT_ID/roadtrip-ai-frontend:$COMMIT_SHA']
+    args: ['push', 'australia-southeast1-docker.pkg.dev/$PROJECT_ID/roadtrip-docker-repo/roadtrip-ai-frontend:$COMMIT_SHA']
     waitFor: ['build-frontend']
 
   # ========================================
@@ -80,7 +80,7 @@ steps:
     entrypoint: 'gcloud'
     args: [
       'run', 'deploy', 'roadtrip-ai-backend-dev',
-      '--image', 'gcr.io/$PROJECT_ID/roadtrip-ai-backend:$COMMIT_SHA',
+      '--image', 'australia-southeast1-docker.pkg.dev/$PROJECT_ID/roadtrip-docker-repo/roadtrip-ai-backend:$COMMIT_SHA',
       '--platform', 'managed',
       '--region', 'australia-southeast1',
       '--allow-unauthenticated',
@@ -124,7 +124,7 @@ steps:
     entrypoint: 'gcloud'
     args: [
       'run', 'deploy', 'roadtrip-ai-frontend-dev',
-      '--image', 'gcr.io/$PROJECT_ID/roadtrip-ai-frontend:$COMMIT_SHA',
+      '--image', 'australia-southeast1-docker.pkg.dev/$PROJECT_ID/roadtrip-docker-repo/roadtrip-ai-frontend:$COMMIT_SHA',
       '--platform', 'managed',
       '--region', 'australia-southeast1',
       '--allow-unauthenticated',
@@ -184,7 +184,7 @@ steps:
     entrypoint: 'gcloud'
     args: [
       'run', 'deploy', 'roadtrip-ai-backend',
-      '--image', 'gcr.io/$PROJECT_ID/roadtrip-ai-backend:$COMMIT_SHA',
+      '--image', 'australia-southeast1-docker.pkg.dev/$PROJECT_ID/roadtrip-docker-repo/roadtrip-ai-backend:$COMMIT_SHA',
       '--platform', 'managed',
       '--region', 'australia-southeast1',
       '--allow-unauthenticated',
@@ -228,7 +228,7 @@ steps:
     entrypoint: 'gcloud'
     args: [
       'run', 'deploy', 'roadtrip-ai-frontend',
-      '--image', 'gcr.io/$PROJECT_ID/roadtrip-ai-frontend:$COMMIT_SHA',
+      '--image', 'australia-southeast1-docker.pkg.dev/$PROJECT_ID/roadtrip-docker-repo/roadtrip-ai-frontend:$COMMIT_SHA',
       '--platform', 'managed',
       '--region', 'australia-southeast1',
       '--allow-unauthenticated',
