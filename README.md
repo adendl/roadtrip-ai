@@ -32,7 +32,7 @@ roadtrip.ai is a full-stack web application that helps users plan detailed road 
 - **TypeScript**: Full type safety in tests
 - **Mocking**: Jest mocks for external dependencies
 
-- #### Backend Testing Technologies
+#### Backend Testing Technologies
 - **JUnit 5**: Test framework
 - **Spring Boot Test**: Integration testing support
 - **Mockito**: Mocking framework
