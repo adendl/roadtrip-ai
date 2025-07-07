@@ -57,3 +57,4 @@ coverage/
 
 # Backend specific
 Backend
+backend/src/main/resources/application.properties
