@@ -85,6 +85,23 @@ public class TripService {
             Trip savedTrip = tripRepository.save(trip);
             logger.info("Trip updated with tripPlans and saved: {}", savedTrip.getTripId());
 
+            // BREAK CIRCULAR REFERENCES FOR JSON SERIALIZATION (same as getTripsByUser)
+            if (savedTrip.getTripPlans() != null) {
+                for (TripPlan plan : savedTrip.getTripPlans()) {
+                    plan.setTrip(null);
+                    if (plan.getDays() != null) {
+                        for (DayPlan day : plan.getDays()) {
+                            day.setTripPlan(null);
+                            if (day.getPlacesOfInterest() != null) {
+                                for (PlaceOfInterest poi : day.getPlacesOfInterest()) {
+                                    poi.setDayPlan(null);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             LoggingUtils.logMethodExit(logger, "createTrip", savedTrip);
             LoggingUtils.logPerformance(logger, "createTrip", startTime);
             return savedTrip;
