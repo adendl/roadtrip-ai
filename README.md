@@ -25,3 +25,16 @@ roadtrip.ai is a full-stack web application that helps users plan detailed road 
 - **PostgreSQL** database
 - **OpenAI GPT-4** API integration
 - **GraphHopper/OSRM** for route calculation
+
+#### Frontend Testing Technologies
+- **Jest**: Test runner and assertion library
+- **React Testing Library**: Component testing utilities
+- **TypeScript**: Full type safety in tests
+- **Mocking**: Jest mocks for external dependencies
+
+- #### Backend Testing Technologies
+- **JUnit 5**: Test framework
+- **Spring Boot Test**: Integration testing support
+- **Mockito**: Mocking framework
+- **H2 Database**: In-memory database for testing
+- **Jacoco**: Code coverage reporting
