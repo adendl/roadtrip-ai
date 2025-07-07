@@ -87,10 +87,24 @@ roadtrip.ai is a full-stack web application that helps users plan detailed road 
    ```
 
 ### Environment Variables
-Create a `.env` file in the frontend directory:
-```
-VITE_API_BASE_URL=http://localhost:8080
-```
+
+#### Frontend Setup
+1. Copy the environment template:
+   ```bash
+   cp frontend/env.template frontend/.env.development
+   ```
+2. Configure your API URL in the `.env.development` file
+
+#### Backend Setup
+1. Copy the configuration template:
+   ```bash
+   cp backend/src/main/resources/application.properties.template backend/src/main/resources/application.properties
+   ```
+2. Configure your database and API credentials in `application.properties`
+
+**⚠️ Security Note**: Never commit actual API keys or database credentials to version control. Use environment variables and template files as shown above.
+
+For detailed security guidelines, see [SECURITY.md](SECURITY.md).
 
 ## API Endpoints
 

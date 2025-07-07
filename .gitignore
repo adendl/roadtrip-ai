@@ -1,4 +1,59 @@
+# Dependencies
 /frontend/node_modules
+/backend/target
+/backend/.mvn/wrapper/maven-wrapper.jar
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.production
+.env.staging
+*.env
+
+# IDE files
 .vscode
 .idea
+*.iml
+*.ipr
+*.iws
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Build outputs
+/frontend/dist
+/frontend/dist-ssr
+*.local
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Secrets and credentials
+secrets/
+credentials/
+config/secrets.properties
+application-secrets.properties
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Coverage reports
+coverage/
+.nyc_output/
+
+# Docker
+.dockerignore
+
+# Backend specific
 Backend

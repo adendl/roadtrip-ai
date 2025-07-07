@@ -25,7 +25,7 @@ export const fetchDrivingRoute = async (
 ): Promise<[number, number][]> => {
   try {
     // Try GraphHopper API first (free tier: 10,000 requests/month)
-    const graphHopperKey = 'demo'; // Replace with your key from https://graphhopper.com/dashboard/
+    const graphHopperKey = import.meta.env.VITE_GRAPHHOPPER_API_KEY || 'demo'; // Use environment variable or fallback to demo
     const graphHopperUrl = `https://graphhopper.com/api/1/route?point=${start.latitude},${start.longitude}&point=${end.latitude},${end.longitude}&vehicle=car&key=${graphHopperKey}`;
     
     const response = await fetch(graphHopperUrl);
