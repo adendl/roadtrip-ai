@@ -186,6 +186,15 @@ steps:
         npx playwright test --help
     waitFor: ['test-dev-environment']
 
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'get-frontend-url'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud run services describe roadtrip-ai-frontend-dev --region=australia-southeast1 --format='value(status.url)' > /workspace/frontend_url.txt
+    waitFor: ['e2e-playwright-debug']
+
   - name: 'mcr.microsoft.com/playwright:v1.53.2-jammy'
     id: 'e2e-playwright'
     entrypoint: 'bash'
@@ -194,9 +203,9 @@ steps:
       - |
         cd frontend
         npm ci
-        frontend_url_local=$(gcloud run services describe roadtrip-ai-frontend-dev --region=australia-southeast1 --format='value(status.url)')
-        PLAYWRIGHT_BASE_URL="$frontend_url_local" npx playwright test --project=chromium --reporter=dot
-    waitFor: ['e2e-playwright-debug']
+        export PLAYWRIGHT_BASE_URL=$(cat /workspace/frontend_url.txt)
+        npx playwright test --project=chromium --reporter=dot
+    waitFor: ['get-frontend-url']
 
   # ========================================
   # STAGE 7: DEPLOY TO PROD (if dev tests pass)

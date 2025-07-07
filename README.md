@@ -531,3 +531,71 @@ sequenceDiagram
     S-->>API: Formatted Trip Data
     API-->>F: Trip List Response
 ```
+
+## DevOps Process
+
+```mermaid
+flowchart TD
+    Developer(("Developer"))
+    PR["Create Pull Request<br/>(GitHub)"]
+    CI["Cloud Build CI Pipeline"]
+    Test["Run Unit & Integration Tests"]
+    Build["Build Docker Images"]
+    Push["Push Images to Artifact Registry"]
+    DeployDev["Deploy to Cloud Run (Dev)"]
+    E2E["Run Playwright E2E Tests<br/>against Dev Environment"]
+    Approve["Manual Approval<br/>(if required)"]
+    DeployProd["Deploy to Cloud Run (Prod)"]
+    Monitor["Monitoring & Alerts<br/>(Cloud Logging, Error Reporting)"]
+
+    Developer --> PR
+    PR --> CI
+    CI --> Test
+    Test --> Build
+    Build --> Push
+    Push --> DeployDev
+    DeployDev --> E2E
+    E2E --> Approve
+    Approve --> DeployProd
+    DeployProd --> Monitor
+    Monitor --> Developer
+```
+
+### DevOps Pipeline Details
+
+- **Developer:**
+  - Writes code using **React (TypeScript)** for the frontend and **Spring Boot (Java)** for the backend.
+  - Uses **Jest** and **React Testing Library** for frontend unit tests.
+  - Uses **JUnit** and **Mockito** for backend unit/integration tests.
+
+- **Create Pull Request (GitHub):**
+  - Source code is managed in **GitHub**.
+  - Pull requests trigger the CI/CD pipeline.
+
+- **Cloud Build CI Pipeline:**
+  - Uses **Google Cloud Build** to orchestrate all build, test, and deploy steps.
+
+- **Run Unit & Integration Tests:**
+  - **Backend:** Runs with **JUnit** and **Mockito** (Java/Spring Boot).
+  - **Frontend:** Runs with **Jest** and **React Testing Library** (React/TypeScript).
+
+- **Build Docker Images:**
+  - Uses **Docker** to build images for both frontend and backend.
+
+- **Push Images to Artifact Registry:**
+  - Images are pushed to **Google Artifact Registry** for versioned storage.
+
+- **Deploy to Cloud Run (Dev):**
+  - Uses **Google Cloud Run** to deploy both frontend and backend containers to the dev environment.
+
+- **Run Playwright E2E Tests against Dev Environment:**
+  - Uses **Playwright** (Node.js) for end-to-end browser testing against the live dev deployment.
+
+- **Manual Approval (if required):**
+  - Optionally, a manual approval step can be added before production deployment.
+
+- **Deploy to Cloud Run (Prod):**
+  - Uses **Google Cloud Run** to deploy to the production environment.
+
+- **Monitoring & Alerts:**
+  - Uses **Google Cloud Logging** and **Error Reporting** for monitoring, alerting, and troubleshooting.
