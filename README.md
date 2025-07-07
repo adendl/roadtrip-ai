@@ -1,3 +1,5 @@
+![roadtrip.ai Demo](assets/Screencast%20From%202025-07-07%2014-32-55.gif)
+
 # Roadtrip.ai System Architecture Diagram
 
 ## Overview
