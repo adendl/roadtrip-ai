@@ -92,10 +92,10 @@ steps:
     args:
       - '-c'
       - |
-        BACKEND_URL=$(gcloud run services describe roadtrip-ai-backend-dev --region=australia-southeast1 --format='value(status.url)')
-        echo "Waiting for backend to be ready at $BACKEND_URL"
+        backend_url_local=$(gcloud run services describe roadtrip-ai-backend-dev --region=australia-southeast1 --format='value(status.url)')
+        echo "Waiting for backend to be ready at $backend_url_local"
         for i in {1..30}; do
-          if curl -f "$BACKEND_URL/actuator/health" > /dev/null 2>&1; then
+          if curl -f "$backend_url_local/actuator/health" > /dev/null 2>&1; then
             echo "Backend is ready!"
             break
           fi
@@ -129,10 +129,10 @@ steps:
     args:
       - '-c'
       - |
-        BACKEND_URL=$(gcloud run services describe roadtrip-ai-backend-dev --region=australia-southeast1 --format='value(status.url)')
+        backend_url_local=$(gcloud run services describe roadtrip-ai-backend-dev --region=australia-southeast1 --format='value(status.url)')
         gcloud run services update roadtrip-ai-frontend-dev \
           --region=australia-southeast1 \
-          --set-env-vars="VITE_API_BASE_URL=$BACKEND_URL"
+          --set-env-vars="VITE_API_BASE_URL=$backend_url_local"
     waitFor: ['deploy-frontend-dev']
 
   # ========================================
@@ -145,18 +145,18 @@ steps:
     args:
       - '-c'
       - |
-        FRONTEND_URL=$(gcloud run services describe roadtrip-ai-frontend-dev --region=australia-southeast1 --format='value(status.url)')
-        BACKEND_URL=$(gcloud run services describe roadtrip-ai-backend-dev --region=australia-southeast1 --format='value(status.url)')
+        frontend_url_local=$(gcloud run services describe roadtrip-ai-frontend-dev --region=australia-southeast1 --format='value(status.url)')
+        backend_url_local=$(gcloud run services describe roadtrip-ai-backend-dev --region=australia-southeast1 --format='value(status.url)')
         
         echo "Testing dev environment..."
-        echo "Frontend URL: $FRONTEND_URL"
-        echo "Backend URL: $BACKEND_URL"
+        echo "Frontend URL: $frontend_url_local"
+        echo "Backend URL: $backend_url_local"
         
         # Test backend health
-        curl -f "$BACKEND_URL/actuator/health" || exit 1
+        curl -f "$backend_url_local/actuator/health" || exit 1
         
         # Test frontend loads
-        curl -f "$FRONTEND_URL" || exit 1
+        curl -f "$frontend_url_local" || exit 1
         
         echo "Dev environment tests passed!"
     waitFor: ['update-frontend-dev-url']
@@ -196,10 +196,10 @@ steps:
     args:
       - '-c'
       - |
-        BACKEND_URL=$(gcloud run services describe roadtrip-ai-backend --region=australia-southeast1 --format='value(status.url)')
-        echo "Waiting for prod backend to be ready at $BACKEND_URL"
+        backend_url_local=$(gcloud run services describe roadtrip-ai-backend --region=australia-southeast1 --format='value(status.url)')
+        echo "Waiting for prod backend to be ready at $backend_url_local"
         for i in {1..30}; do
-          if curl -f "$BACKEND_URL/actuator/health" > /dev/null 2>&1; then
+          if curl -f "$backend_url_local/actuator/health" > /dev/null 2>&1; then
             echo "Prod backend is ready!"
             break
           fi
@@ -233,10 +233,10 @@ steps:
     args:
       - '-c'
       - |
-        BACKEND_URL=$(gcloud run services describe roadtrip-ai-backend --region=australia-southeast1 --format='value(status.url)')
+        backend_url_local=$(gcloud run services describe roadtrip-ai-backend --region=australia-southeast1 --format='value(status.url)')
         gcloud run services update roadtrip-ai-frontend \
           --region=australia-southeast1 \
-          --set-env-vars="VITE_API_BASE_URL=$BACKEND_URL"
+          --set-env-vars="VITE_API_BASE_URL=$backend_url_local"
     waitFor: ['deploy-frontend-prod']
 
   # ========================================
@@ -248,18 +248,18 @@ steps:
     args:
       - '-c'
       - |
-        FRONTEND_URL=$(gcloud run services describe roadtrip-ai-frontend --region=australia-southeast1 --format='value(status.url)')
-        BACKEND_URL=$(gcloud run services describe roadtrip-ai-backend --region=australia-southeast1 --format='value(status.url)')
+        frontend_url_local=$(gcloud run services describe roadtrip-ai-frontend --region=australia-southeast1 --format='value(status.url)')
+        backend_url_local=$(gcloud run services describe roadtrip-ai-backend --region=australia-southeast1 --format='value(status.url)')
         
         echo "Testing prod environment..."
-        echo "Frontend URL: $FRONTEND_URL"
-        echo "Backend URL: $BACKEND_URL"
+        echo "Frontend URL: $frontend_url_local"
+        echo "Backend URL: $backend_url_local"
         
         # Test backend health
-        curl -f "$BACKEND_URL/actuator/health" || exit 1
+        curl -f "$backend_url_local/actuator/health" || exit 1
         
         # Test frontend loads
-        curl -f "$FRONTEND_URL" || exit 1
+        curl -f "$frontend_url_local" || exit 1
         
         echo "Prod environment tests passed!"
         echo "Deployment successful!"
