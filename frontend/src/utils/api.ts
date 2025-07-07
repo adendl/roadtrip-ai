@@ -1,7 +1,18 @@
 // API configuration utility
+function getRuntimeConfig(key: string, fallback: string) {
+  if (typeof window !== 'undefined' && (window as any).RUNTIME_CONFIG && (window as any).RUNTIME_CONFIG[key]) {
+    return (window as any).RUNTIME_CONFIG[key];
+  }
+  return fallback;
+}
+
 export const API_CONFIG = {
-  BASE_URL: import.meta.env.VITE_API_BASE_URL || (window as any).RUNTIME_CONFIG?.VITE_API_BASE_URL || 'http://localhost:8080',
-  ENV: import.meta.env.VITE_APP_ENV || (window as any).RUNTIME_CONFIG?.VITE_APP_ENV || 'development',
+  get BASE_URL() {
+    return getRuntimeConfig('VITE_API_BASE_URL', 'http://localhost:8080');
+  },
+  get ENV() {
+    return getRuntimeConfig('VITE_APP_ENV', 'development');
+  },
   TIMEOUT: 600000 // 10 minutes timeout for long-running requests like trip generation
 };
 
