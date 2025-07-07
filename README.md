@@ -1,6 +1,6 @@
 # roadtrip.ai
 
-An AI-powered road trip planning application that generates personalized itineraries using OpenAI's GPT-4.
+An AI-powered road trip planning application that generates personalised itineraries using OpenAI's GPT-4.
 
 ## Overview
 
@@ -9,12 +9,12 @@ roadtrip.ai is a full-stack web application that helps users plan detailed road 
 ## Features
 
 ### 🚗 AI-Powered Trip Planning
-- **Smart Itinerary Generation**: Uses OpenAI GPT-4 to create personalized trip plans based on user preferences
-- **Route Optimization**: Automatically calculates optimal driving routes between destinations
+- **Smart Itinerary Generation**: Uses OpenAI GPT-4 to create personalised trip plans based on user preferences
+- **Route Optimisation**: Automatically calculates optimal driving routes between destinations
 - **Interest-Based Recommendations**: Tailors suggestions based on user interests (beaches, food, culture, etc.)
 
 ### 🗺️ Interactive Maps & Navigation
-- **Interactive Trip Maps**: Visualize entire trips with Leaflet.js integration
+- **Interactive Trip Maps**: Visualise entire trips with Leaflet.js integration
 - **Day-by-Day Routes**: View detailed routes for each day of your trip
 - **Real-time Route Calculation**: Uses GraphHopper and OSRM APIs for accurate driving directions
 - **Place Markers**: Interactive markers for start/end points and places of interest
@@ -52,7 +52,7 @@ roadtrip.ai is a full-stack web application that helps users plan detailed road 
 - **GraphHopper/OSRM** for route calculation
 
 ### DevOps
-- **Docker** containerization
+- **Docker** containerisation
 - **Nginx** for frontend serving
 - **Maven** for Java dependency management
 - **npm** for Node.js dependencies
