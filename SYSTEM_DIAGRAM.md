@@ -3,6 +3,91 @@
 ## Overview
 Roadtrip.ai is a full-stack AI-powered road trip planning application that generates personalized itineraries using OpenAI's GPT-4. The system follows a modern microservices-inspired architecture with clear separation of concerns.
 
+## Cloud Infrastructure Architecture
+
+```mermaid
+graph TB
+    %% Google Cloud Project
+    subgraph GCP["🌐 Google Cloud Platform\nProject: trusty-gradient-464506-v8\nRegion: australia-southeast1"]
+        
+        %% External Access
+        Internet["🌍 Internet"] --> LoadBalancer["⚖️ Cloud Load Balancer\nGlobal HTTP(S)"]
+        
+        %% Cloud Run Services
+        subgraph CloudRun["🚀 Cloud Run Services\nRegion: australia-southeast1"]
+            FrontendService["⚛️ roadtrip-ai\nFrontend Service\nhttps://roadtrip-ai-jvq22hngaa-ts.a.run.app"]
+            BackendService["☕ roadtrip-ai-backend\nBackend Service\nhttps://roadtrip-ai-backend-jvq22hngaa-ts.a.run.app"]
+        end
+        
+        %% Compute Engine
+        subgraph ComputeEngine["🖥️ Compute Engine\nZone: australia-southeast1-b"]
+            PostgresVM["🐘 postgres-db\nInstance Type: e2-medium\nPostgreSQL Database"]
+        end
+        
+        %% Networking
+        subgraph VPC["🌐 VPC Network"]
+            DefaultNetwork["default\nAuto Subnet Mode\nRegional BGP"]
+        end
+        
+        %% Service Accounts
+        subgraph IAM["🔐 IAM Service Accounts"]
+            ServiceAccount["service-account\n@trusty-gradient-464506-v8.iam.gserviceaccount.com"]
+            ComputeSA["Default Compute Service Account\n688052801817-compute@developer.gserviceaccount.com"]
+        end
+        
+        %% Connections
+        LoadBalancer --> FrontendService
+        LoadBalancer --> BackendService
+        FrontendService --> BackendService
+        BackendService --> PostgresVM
+        PostgresVM --> DefaultNetwork
+        CloudRun --> DefaultNetwork
+        
+        %% Service Account Bindings
+        BackendService -.-> ServiceAccount
+        PostgresVM -.-> ComputeSA
+    end
+    
+    %% External APIs
+    BackendService --> OpenAI["🤖 OpenAI GPT-4\nAI Trip Generation"]
+    BackendService --> GraphHopper["🗺️ GraphHopper API\nRoute Calculation"]
+    BackendService --> OSRM["🗺️ OSRM API\nAlternative Routing"]
+    
+    %% Styling
+    classDef gcp fill:#4285f4,stroke:#1a73e8,stroke-width:3px,color:#fff
+    classDef cloudRun fill:#34a853,stroke:#137333,stroke-width:2px,color:#fff
+    classDef compute fill:#ea4335,stroke:#c5221f,stroke-width:2px,color:#fff
+    classDef network fill:#9c27b0,stroke:#7b1fa2,stroke-width:2px,color:#fff
+    classDef iam fill:#ff6d01,stroke:#e65100,stroke-width:2px,color:#fff
+    classDef external fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    
+    class GCP gcp
+    class FrontendService,BackendService cloudRun
+    class PostgresVM compute
+    class DefaultNetwork network
+    class ServiceAccount,ComputeSA iam
+    class OpenAI,GraphHopper,OSRM external
+```
+
+## Current Infrastructure Status
+
+### Cloud Run Services ✅
+- **Frontend Service**: `roadtrip-ai` - Running and accessible
+- **Backend Service**: `roadtrip-ai-backend` - Running and accessible
+
+### Database Infrastructure ✅
+- **Compute Engine PostgreSQL**: `postgres-db` - Running (e2-medium instance)
+- **Database**: PostgreSQL running on Compute Engine instance
+
+### Networking ✅
+- **VPC**: Default network with auto subnet mode
+- **Region**: australia-southeast1 (Sydney)
+- **Zone**: australia-southeast1-b
+
+### Security ✅
+- **Service Accounts**: Properly configured for each service
+- **IAM**: Dedicated service accounts for backend and compute resources
+
 ## System Architecture
 
 ```mermaid
