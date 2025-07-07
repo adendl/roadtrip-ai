@@ -8,15 +8,38 @@ const testUser = {
 
 test.describe.serial('Authentication Flows', () => {
   test('User can sign up', async ({ page }) => {
+    // Listen for network requests
+    const responsePromise = page.waitForResponse(response => 
+      response.url().includes('/api/users/signup') || response.url().includes('/register')
+    );
+    
     await page.goto('/signup');
     await page.fill('input[placeholder="Username"]', testUser.username);
     await page.fill('input[placeholder="Email"]', testUser.email);
     await page.fill('input[placeholder="Password"]', testUser.password);
     await page.click('button:has-text("Sign Up")');
-    // Wait for the success message to appear
+    
+    // Wait for the API response
+    const response = await responsePromise;
+    console.log('Sign-up API response status:', response.status());
+    console.log('Sign-up API response URL:', response.url());
+    
+    // Wait a moment for the response
+    await page.waitForTimeout(2000);
+    
+    // Check for error messages first
+    const errorElement = page.locator('.text-red-600');
+    if (await errorElement.isVisible()) {
+      const errorText = await errorElement.textContent();
+      throw new Error(`Sign-up failed: ${errorText}`);
+    }
+    
+    // If no error, wait for success message
     await expect(page.locator('text=Registration Successful!')).toBeVisible();
+    
     // Wait for the redirect to /login (allow up to 4 seconds for the 2s delay)
     await expect(page).toHaveURL(/login/, { timeout: 4000 });
+    
     // Wait for DB to persist user (increased to 5 seconds)
     await page.waitForTimeout(5000);
     console.log('Signed up user:', testUser);
