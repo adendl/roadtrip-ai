@@ -7,14 +7,27 @@ function getRuntimeConfig(key: string, fallback: string) {
 }
 
 export const API_CONFIG = {
-  get BASE_URL() {
-    return getRuntimeConfig('VITE_API_BASE_URL', 'http://localhost:8080');
-  },
-  get ENV() {
-    return getRuntimeConfig('VITE_APP_ENV', 'development');
-  },
+  BASE_URL: getRuntimeConfig('VITE_API_BASE_URL', 'http://localhost:8080'),
+  ENV: getRuntimeConfig('VITE_APP_ENV', 'development'),
   TIMEOUT: 600000 // 10 minutes timeout for long-running requests like trip generation
 };
+
+// Function to initialize API config with Vite environment variables
+export function initializeApiConfig() {
+  try {
+    // Only run this in browser environment
+    if (typeof window !== 'undefined') {
+      // Try to access Vite env variables
+      const viteEnv = (window as any).__VITE_ENV__;
+      if (viteEnv) {
+        API_CONFIG.BASE_URL = viteEnv.VITE_API_BASE_URL || API_CONFIG.BASE_URL;
+        API_CONFIG.ENV = viteEnv.VITE_APP_ENV || API_CONFIG.ENV;
+      }
+    }
+  } catch (error) {
+    console.warn('Could not initialize API config with Vite env:', error);
+  }
+}
 
 // Helper function to build API URLs
 export const buildApiUrl = (endpoint: string): string => {

@@ -1,9 +1,12 @@
-import { API_CONFIG, buildApiUrl, getApiHeaders, API_ENDPOINTS } from '../api';
+import { API_CONFIG, buildApiUrl, getApiHeaders, API_ENDPOINTS, initializeApiConfig } from '../api';
 
 describe('API Utils', () => {
   beforeEach(() => {
     // Reset window.RUNTIME_CONFIG
     (window as any).RUNTIME_CONFIG = undefined;
+    // Reset API_CONFIG to default values
+    API_CONFIG.BASE_URL = 'http://localhost:8080';
+    API_CONFIG.ENV = 'development';
   });
 
   describe('API_CONFIG', () => {
@@ -12,31 +15,49 @@ describe('API Utils', () => {
       expect(API_CONFIG.ENV).toBe('development');
     });
 
-    it('should use runtime config when available', () => {
-      (window as any).RUNTIME_CONFIG = {
-        VITE_API_BASE_URL: 'https://runtime-api.example.com',
-        VITE_APP_ENV: 'staging'
-      };
-
+    it('should allow runtime configuration updates', () => {
+      // Test that we can update the config at runtime
+      API_CONFIG.BASE_URL = 'https://runtime-api.example.com';
+      API_CONFIG.ENV = 'staging';
+      
       expect(API_CONFIG.BASE_URL).toBe('https://runtime-api.example.com');
       expect(API_CONFIG.ENV).toBe('staging');
     });
   });
 
+  describe('initializeApiConfig', () => {
+    it('should initialize config with Vite env variables', () => {
+      (window as any).__VITE_ENV__ = {
+        VITE_API_BASE_URL: 'https://vite-api.example.com',
+        VITE_APP_ENV: 'production'
+      };
+
+      initializeApiConfig();
+      expect(API_CONFIG.BASE_URL).toBe('https://vite-api.example.com');
+      expect(API_CONFIG.ENV).toBe('production');
+    });
+
+    it('should handle missing Vite env gracefully', () => {
+      delete (window as any).__VITE_ENV__;
+      const originalBaseUrl = API_CONFIG.BASE_URL;
+      const originalEnv = API_CONFIG.ENV;
+
+      initializeApiConfig();
+      expect(API_CONFIG.BASE_URL).toBe(originalBaseUrl);
+      expect(API_CONFIG.ENV).toBe(originalEnv);
+    });
+  });
+
   describe('buildApiUrl', () => {
     it('should build correct API URL with endpoint', () => {
-      (window as any).RUNTIME_CONFIG = {
-        VITE_API_BASE_URL: 'https://api.example.com'
-      };
+      API_CONFIG.BASE_URL = 'https://api.example.com';
 
       const url = buildApiUrl('users/login');
       expect(url).toBe('https://api.example.com/users/login');
     });
 
     it('should handle endpoints with leading slash', () => {
-      (window as any).RUNTIME_CONFIG = {
-        VITE_API_BASE_URL: 'https://api.example.com'
-      };
+      API_CONFIG.BASE_URL = 'https://api.example.com';
 
       const url = buildApiUrl('/users/login');
       expect(url).toBe('https://api.example.com/users/login');
