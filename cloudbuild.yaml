@@ -271,12 +271,4 @@ timeout: '1800s'
 # Options
 options:
   logging: CLOUD_LOGGING_ONLY
-  machineType: 'E2_HIGHCPU_8'
-
-# Substitutions
-substitutions:
-  _REGION: 'australia-southeast1'
-  _BACKEND_SERVICE_NAME: 'roadtrip-ai-backend'
-  _FRONTEND_SERVICE_NAME: 'roadtrip-ai-frontend'
-  _BACKEND_DEV_SERVICE_NAME: 'roadtrip-ai-backend-dev'
-  _FRONTEND_DEV_SERVICE_NAME: 'roadtrip-ai-frontend-dev' 
+  machineType: 'E2_HIGHCPU_8' 
