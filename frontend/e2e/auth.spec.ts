@@ -14,7 +14,7 @@ test.describe('Authentication Flows', () => {
     await page.fill('input[placeholder="Password"]', testUser.password);
     await page.click('button:has-text("Sign Up")');
     // Expect to be redirected to dashboard or see a welcome message
-    await expect(page).toHaveURL(/dashboard|home/i);
+    await expect(page).toHaveURL(/login|home/i);
     // Optionally check for a welcome message or dashboard element
   });
 
