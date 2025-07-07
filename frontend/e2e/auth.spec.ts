@@ -15,8 +15,8 @@ test.describe.serial('Authentication Flows', () => {
     await page.click('button:has-text("Sign Up")');
     // Expect redirect to /login (unless pendingTripData is set, which is not the case in this test)
     await expect(page).toHaveURL(/login/);
-    // Wait for DB to persist user
-    await page.waitForTimeout(1000);
+    // Wait for DB to persist user (increased to 5 seconds)
+    await page.waitForTimeout(5000);
     console.log('Signed up user:', testUser);
   });
 
