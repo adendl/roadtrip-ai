@@ -11,62 +11,62 @@ graph TB
     User[👤 User] --> Browser[🌐 Web Browser]
     
     %% Frontend Layer
-    Browser --> Frontend[⚛️ React Frontend<br/>TypeScript + Vite]
-    Frontend --> AuthContext[🔐 Auth Context<br/>JWT Management]
-    Frontend --> Components[🧩 React Components<br/>Pages, Forms, Maps]
+    Browser --> Frontend["⚛️ React Frontend<br/>TypeScript + Vite"]
+    Frontend --> AuthContext["🔐 Auth Context<br/>JWT Management"]
+    Frontend --> Components["🧩 React Components<br/>Pages, Forms, Maps"]
     
     %% Frontend Components
-    Components --> HomePage[🏠 Home Page<br/>Trip Form]
-    Components --> Dashboard[📊 Dashboard<br/>Trip Management]
-    Components --> LoginPage[🔑 Login/Signup]
-    Components --> TripDetails[🗺️ Trip Details<br/>Interactive Maps]
+    Components --> HomePage["🏠 Home Page<br/>Trip Form"]
+    Components --> Dashboard["📊 Dashboard<br/>Trip Management"]
+    Components --> LoginPage["🔑 Login/Signup"]
+    Components --> TripDetails["🗺️ Trip Details<br/>Interactive Maps"]
     
     %% Frontend Utilities
-    Frontend --> Utils[🛠️ Utilities<br/>API, PDF, Maps]
-    Utils --> APIClient[📡 API Client<br/>Axios]
-    Utils --> PDFGenerator[📄 PDF Generator<br/>jsPDF]
-    Utils --> MapUtils[🗺️ Map Utils<br/>Leaflet.js]
+    Frontend --> Utils["🛠️ Utilities<br/>API, PDF, Maps"]
+    Utils --> APIClient["📡 API Client<br/>Axios"]
+    Utils --> PDFGenerator["📄 PDF Generator<br/>jsPDF"]
+    Utils --> MapUtils["🗺️ Map Utils<br/>Leaflet.js"]
     
     %% API Gateway/Load Balancer
-    Frontend --> Nginx[🌐 Nginx<br/>Reverse Proxy]
-    Nginx --> Backend[☕ Spring Boot Backend<br/>Java 21]
+    Frontend --> Nginx["🌐 Nginx<br/>Reverse Proxy"]
+    Nginx --> Backend["☕ Spring Boot Backend<br/>Java 21"]
     
     %% Backend Layer
-    Backend --> Controllers[🎮 Controllers<br/>REST API Endpoints]
-    Backend --> Services[⚙️ Services<br/>Business Logic]
-    Backend --> Repositories[🗄️ Repositories<br/>Data Access]
-    Backend --> Security[🔒 Security<br/>JWT + Spring Security]
+    Backend --> Controllers["🎮 Controllers<br/>REST API Endpoints"]
+    Backend --> Services["⚙️ Services<br/>Business Logic"]
+    Backend --> Repositories["🗄️ Repositories<br/>Data Access"]
+    Backend --> Security["🔒 Security<br/>JWT + Spring Security"]
     
     %% Backend Components
-    Controllers --> TripController[🚗 Trip Controller<br/>/api/trips/*]
-    Controllers --> UserController[👤 User Controller<br/>/api/users/*]
+    Controllers --> TripController["🚗 Trip Controller<br/>/api/trips/*"]
+    Controllers --> UserController["👤 User Controller<br/>/api/users/*"]
     
-    Services --> TripService[🚗 Trip Service<br/>AI Integration]
-    Services --> UserService[👤 User Service<br/>Authentication]
+    Services --> TripService["🚗 Trip Service<br/>AI Integration"]
+    Services --> UserService["👤 User Service<br/>Authentication"]
     
-    Repositories --> TripRepo[🗄️ Trip Repository]
-    Repositories --> UserRepo[🗄️ User Repository]
-    Repositories --> TripPlanRepo[🗄️ Trip Plan Repository]
-    Repositories --> DayPlanRepo[🗄️ Day Plan Repository]
+    Repositories --> TripRepo["🗄️ Trip Repository"]
+    Repositories --> UserRepo["🗄️ User Repository"]
+    Repositories --> TripPlanRepo["🗄️ Trip Plan Repository"]
+    Repositories --> DayPlanRepo["🗄️ Day Plan Repository"]
     
     %% Database Layer
-    Repositories --> Database[(🐘 PostgreSQL<br/>Primary Database)]
+    Repositories --> Database[("🐘 PostgreSQL<br/>Primary Database")]
     
     %% External APIs
-    TripService --> OpenAI[🤖 OpenAI GPT-4<br/>AI Trip Generation]
-    TripService --> GraphHopper[🗺️ GraphHopper API<br/>Route Calculation]
-    TripService --> OSRM[🗺️ OSRM API<br/>Alternative Routing]
+    TripService --> OpenAI["🤖 OpenAI GPT-4<br/>AI Trip Generation"]
+    TripService --> GraphHopper["🗺️ GraphHopper API<br/>Route Calculation"]
+    TripService --> OSRM["🗺️ OSRM API<br/>Alternative Routing"]
     
     %% Infrastructure
-    Backend --> Logging[📝 Logging<br/>Log4j2]
-    Backend --> Monitoring[📊 Monitoring<br/>Spring Actuator]
+    Backend --> Logging["📝 Logging<br/>Log4j2"]
+    Backend --> Monitoring["📊 Monitoring<br/>Spring Actuator"]
     
     %% Styling
-    classDef frontend fill:#e1f5fe
-    classDef backend fill:#f3e5f5
-    classDef database fill:#e8f5e8
-    classDef external fill:#fff3e0
-    classDef infrastructure fill:#fce4ec
+    classDef frontend fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#000
+    classDef backend fill:#f3e5f5,stroke:#4a148c,stroke-width:2px,color:#000
+    classDef database fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px,color:#000
+    classDef external fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    classDef infrastructure fill:#fce4ec,stroke:#880e4f,stroke-width:2px,color:#000
     
     class Frontend,AuthContext,Components,HomePage,Dashboard,LoginPage,TripDetails,Utils,APIClient,PDFGenerator,MapUtils frontend
     class Backend,Controllers,Services,Repositories,Security,TripController,UserController,TripService,UserService,TripRepo,UserRepo,TripPlanRepo,DayPlanRepo backend
