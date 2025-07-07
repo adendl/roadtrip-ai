@@ -3,7 +3,7 @@
 # Roadtrip.ai System Architecture Diagram
 
 ## Overview
-Roadtrip.ai is a full-stack AI-powered road trip planning application that generates personalized itineraries using OpenAI's GPT-4. The system follows a modern microservices-inspired architecture with clear separation of concerns.
+Roadtrip.ai is a full-stack AI-powered road trip planning application that generates personalised itineraries using OpenAI's GPT-4. The system follows a modern microservices-inspired architecture with clear separation of concerns.
 
 ## System Architecture
 
@@ -287,7 +287,7 @@ src/main/java/com/adendl/traveljournalai/
 
 ### Infrastructure
 - **Web Server**: Nginx
-- **Containerization**: Docker
+- **Containerisation**: Docker
 - **Database**: PostgreSQL
 - **External APIs**: OpenAI GPT-4, GraphHopper, OSRM
 
@@ -331,7 +331,7 @@ graph TB
         subgraph "Google Cloud Services"
             LoadBalancer["🌐 Cloud Load Balancer<br/>HTTPS/TLS Termination<br/>Traffic Distribution"]
             CloudDNS["🌍 Cloud DNS<br/>Domain Management<br/>SSL Certificates"]
-            CloudLogging["📝 Cloud Logging<br/>Centralized Logs<br/>Monitoring"]
+            CloudLogging["📝 Cloud Logging<br/>Centralised Logs<br/>Monitoring"]
             CloudMonitoring["📊 Cloud Monitoring<br/>Metrics & Alerts<br/>Performance Tracking"]
         end
     end
