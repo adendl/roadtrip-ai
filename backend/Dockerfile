@@ -25,5 +25,12 @@ COPY --from=builder /app/build/libs/traveljournalai-0.0.1-SNAPSHOT.jar app.jar
 ARG SERVER_PORT=8080
 EXPOSE ${SERVER_PORT}
 
+# Set default environment variables
+ENV SERVER_PORT=${SERVER_PORT}
+ENV LOG_LEVEL=INFO
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:${SERVER_PORT}/actuator/health || exit 1
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
