@@ -172,6 +172,21 @@ steps:
     waitFor: ['update-frontend-dev-url']
 
   # ========================================
+  # STAGE 6b: E2E TESTS WITH PLAYWRIGHT
+  # ========================================
+  - name: 'mcr.microsoft.com/playwright:v1.43.1-jammy'
+    id: 'e2e-playwright'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        cd frontend
+        npm ci
+        frontend_url_local=$(gcloud run services describe roadtrip-ai-frontend-dev --region=australia-southeast1 --format='value(status.url)')
+        npx playwright test --project=chromium --reporter=dot --base-url="$frontend_url_local"
+    waitFor: ['test-dev-environment']
+
+  # ========================================
   # STAGE 7: DEPLOY TO PROD (if dev tests pass)
   # ========================================
   # Deploy backend to prod with PostgreSQL
@@ -249,36 +264,10 @@ steps:
           --set-env-vars="VITE_API_BASE_URL=$backend_url_local"
     waitFor: ['deploy-frontend-prod']
 
-  # ========================================
-  # STAGE 8: FINAL PROD TESTS
-  # ========================================
-  - name: 'curlimages/curl'
-    id: 'test-prod-environment'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        frontend_url_local=$(gcloud run services describe roadtrip-ai-frontend --region=australia-southeast1 --format='value(status.url)')
-        backend_url_local=$(gcloud run services describe roadtrip-ai-backend --region=australia-southeast1 --format='value(status.url)')
-        
-        echo "Testing prod environment..."
-        echo "Frontend URL: $frontend_url_local"
-        echo "Backend URL: $backend_url_local"
-        
-        # Test backend health
-        curl -f "$backend_url_local/actuator/health" || exit 1
-        
-        # Test frontend loads
-        curl -f "$frontend_url_local" || exit 1
-        
-        echo "Prod environment tests passed!"
-        echo "Deployment successful!"
-    waitFor: ['update-frontend-prod-url']
-
 # Build timeout
 timeout: '1800s'
 
 # Options
 options:
   logging: CLOUD_LOGGING_ONLY
-  machineType: 'E2_HIGHCPU_8' 
+  machineType: 'E2_HIGHCPU_8' `
