@@ -6,16 +6,14 @@ const testUser = {
   password: 'E2eTestPassword123!'
 };
 
-test.describe('Authentication Flows', () => {
+test.describe.serial('Authentication Flows', () => {
   test('User can sign up', async ({ page }) => {
     await page.goto('/signup');
     await page.fill('input[placeholder="Username"]', testUser.username);
     await page.fill('input[placeholder="Email"]', testUser.email);
     await page.fill('input[placeholder="Password"]', testUser.password);
     await page.click('button:has-text("Sign Up")');
-    // Expect to be redirected to dashboard or see a welcome message
     await expect(page).toHaveURL(/login|home/i);
-    // Optionally check for a welcome message or dashboard element
   });
 
   test('User can log in with valid credentials', async ({ page }) => {
@@ -23,13 +21,16 @@ test.describe('Authentication Flows', () => {
     await page.fill('input[placeholder="Username"]', testUser.username);
     await page.fill('input[placeholder="Password"]', testUser.password);
     await page.click('button:has-text("Login")');
-    // Expect to be redirected to dashboard or see a welcome message
+    // If login fails, check for error message
+    if (await page.url().includes('/login')) {
+      const error = await page.locator('.text-red-600').textContent();
+      throw new Error('Login failed: ' + error);
+    }
     await expect(page).toHaveURL(/dashboard|home/i);
-    // Optionally check for a welcome message or dashboard element
   });
 
   test('User can log out after login', async ({ page }) => {
-    // Open the user menu first
+    // Open user menu and log out
     await page.click('button:has(svg)');
     await page.click('button:has-text("Sign Out")');
     await expect(page).toHaveURL(/login|home/i);
