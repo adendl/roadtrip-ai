@@ -3,7 +3,8 @@
 # Roadtrip.ai System Architecture Diagram
 
 ## Overview
-Roadtrip.ai is a full-stack AI-powered road trip planning application that generates personalised itineraries using OpenAI's GPT-4.
+Roadtrip.ai is a full-stack AI-powered road trip planning application that generates personalised itineraries using OpenAI's GPT-4. 
+
 
 ## System Architecture
 
