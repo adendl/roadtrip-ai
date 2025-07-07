@@ -1,0 +1,75 @@
+# Development Profile Configuration
+# Uses H2 in-memory database for testing and development
+
+spring:
+  profiles:
+    active: dev
+  
+  # H2 Database Configuration
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+  
+  # H2 Console (for development debugging)
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  
+  # JPA Configuration
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+  
+  # Security Configuration (relaxed for dev)
+  security:
+    user:
+      name: admin
+      password: admin
+
+# Server Configuration
+server:
+  port: 8080
+
+# Logging Configuration
+logging:
+  level:
+    com.adendl.traveljournalai: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+# Application Configuration
+app:
+  jwt:
+    secret: dev-jwt-secret-key-for-development-only
+    expiration: 86400000 # 24 hours
+  
+  openai:
+    api-key: ${OPENAI_API_KEY:dev-openai-key}
+    model: gpt-4
+    max-tokens: 2000
+  
+  cors:
+    allowed-origins: "*"
+    allowed-methods: "*"
+    allowed-headers: "*"
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always 
