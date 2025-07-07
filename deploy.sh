@@ -102,10 +102,7 @@ deploy_frontend() {
     
     # Build Docker image
     print_status "Building Docker image..."
-    docker build \
-        --build-arg VITE_API_BASE_URL=$BACKEND_URL \
-        --build-arg VITE_APP_ENV=production \
-        -t gcr.io/$PROJECT_ID/$FRONTEND_SERVICE .
+    docker build -t gcr.io/$PROJECT_ID/$FRONTEND_SERVICE .
     
     # Push to Container Registry
     print_status "Pushing to Container Registry..."
@@ -121,7 +118,9 @@ deploy_frontend() {
         --port 80 \
         --memory 512Mi \
         --cpu 1 \
-        --max-instances 5
+        --max-instances 5 \
+        --set-env-vars="VITE_API_BASE_URL=$BACKEND_URL" \
+        --set-env-vars="VITE_APP_ENV=production"
     
     cd ..
     

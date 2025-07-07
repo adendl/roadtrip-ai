@@ -93,10 +93,7 @@ gcloud run deploy roadtrip-ai-backend \
 cd frontend
 
 # Build the Docker image
-docker build \
-  --build-arg VITE_API_BASE_URL=https://roadtrip-ai-backend-XXXXX.australia-southeast1.run.app \
-  --build-arg VITE_APP_ENV=production \
-  -t gcr.io/YOUR_PROJECT_ID/roadtrip-ai-frontend .
+docker build -t gcr.io/YOUR_PROJECT_ID/roadtrip-ai-frontend .
 
 # Push to Google Container Registry
 docker push gcr.io/YOUR_PROJECT_ID/roadtrip-ai-frontend
@@ -110,7 +107,9 @@ gcloud run deploy roadtrip-ai-frontend \
   --port 80 \
   --memory 512Mi \
   --cpu 1 \
-  --max-instances 5
+  --max-instances 5 \
+  --set-env-vars="VITE_API_BASE_URL=https://roadtrip-ai-backend-XXXXX.australia-southeast1.run.app" \
+  --set-env-vars="VITE_APP_ENV=production"
 ```
 
 ### 2. Frontend Environment Variables
