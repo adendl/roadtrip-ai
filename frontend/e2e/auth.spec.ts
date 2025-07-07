@@ -10,7 +10,7 @@ test.describe.serial('Authentication Flows', () => {
   test('User can sign up', async ({ page }) => {
     // Listen for network requests
     const responsePromise = page.waitForResponse(response => 
-      response.url().includes('/api/users/signup') || response.url().includes('/register')
+      response.url().includes('/api/users/register') || response.url().includes('/register')
     );
     
     await page.goto('/signup');

@@ -77,7 +77,7 @@ export const fetchWithTimeout = async (
 // API endpoints
 export const API_ENDPOINTS = {
   LOGIN: 'api/users/login',
-  SIGNUP: 'api/users/signup',
+  SIGNUP: 'api/users/register',
   TRIPS: {
     CREATE: 'api/trips/create',
     GET_USER_TRIPS: 'api/trips/user',
