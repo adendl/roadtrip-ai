@@ -300,21 +300,60 @@ graph LR
 
 ```mermaid
 graph TB
-    subgraph "Production Environment"
-        LoadBalancer[🌐 Load Balancer]
-        LoadBalancer --> FrontendContainer[📦 Frontend Container<br/>Nginx + React]
-        LoadBalancer --> BackendContainer[📦 Backend Container<br/>Spring Boot]
-        BackendContainer --> Database[(🐘 PostgreSQL<br/>Database)]
+    subgraph "Google Cloud Platform"
+        subgraph "Cloud Run Services"
+            FrontendService["⚛️ Frontend Service<br/>Cloud Run<br/>React + Nginx<br/>Auto-scaling"]
+            BackendService["☕ Backend Service<br/>Cloud Run<br/>Spring Boot<br/>Auto-scaling"]
+        end
         
-        BackendContainer --> OpenAI[🤖 OpenAI API]
-        BackendContainer --> GraphHopper[🗺️ GraphHopper API]
+        subgraph "Compute Engine"
+            UbuntuVM["🖥️ Ubuntu VM<br/>Compute Engine<br/>PostgreSQL Database<br/>Persistent Storage"]
+        end
+        
+        subgraph "External APIs"
+            OpenAI["🤖 OpenAI GPT-4<br/>AI Trip Generation"]
+            GraphHopper["🗺️ GraphHopper API<br/>Route Calculation"]
+            OSRM["🗺️ OSRM API<br/>Alternative Routing"]
+        end
+        
+        subgraph "Google Cloud Services"
+            LoadBalancer["🌐 Cloud Load Balancer<br/>HTTPS/TLS Termination<br/>Traffic Distribution"]
+            CloudDNS["🌍 Cloud DNS<br/>Domain Management<br/>SSL Certificates"]
+            CloudLogging["📝 Cloud Logging<br/>Centralized Logs<br/>Monitoring"]
+            CloudMonitoring["📊 Cloud Monitoring<br/>Metrics & Alerts<br/>Performance Tracking"]
+        end
     end
     
     subgraph "Development Environment"
-        DevFrontend[⚛️ React Dev Server<br/>localhost:5173]
-        DevBackend[☕ Spring Boot<br/>localhost:8080]
-        DevDatabase[(🐘 PostgreSQL<br/>localhost:5432)]
+        DevFrontend["⚛️ React Dev Server<br/>localhost:5173<br/>Hot Reload"]
+        DevBackend["☕ Spring Boot<br/>localhost:8080<br/>Debug Mode"]
+        DevDatabase["🐘 PostgreSQL<br/>localhost:5432<br/>Local Data"]
     end
+    
+    %% Production Flow
+    LoadBalancer --> FrontendService
+    LoadBalancer --> BackendService
+    BackendService --> UbuntuVM
+    BackendService --> OpenAI
+    BackendService --> GraphHopper
+    BackendService --> OSRM
+    
+    %% Development Flow
+    DevFrontend --> DevBackend
+    DevBackend --> DevDatabase
+    
+    %% Styling
+    classDef cloudRun fill:#4285f4,stroke:#1a73e8,stroke-width:2px,color:#fff
+    classDef computeEngine fill:#34a853,stroke:#137333,stroke-width:2px,color:#fff
+    classDef external fill:#ea4335,stroke:#d93025,stroke-width:2px,color:#fff
+    classDef cloudServices fill:#fbbc04,stroke:#f9ab00,stroke-width:2px,color:#000
+    classDef development fill:#9aa0a6,stroke:#5f6368,stroke-width:2px,color:#fff
+    
+    class FrontendService,BackendService cloudRun
+    class UbuntuVM computeEngine
+    class OpenAI,GraphHopper,OSRM external
+    class LoadBalancer,CloudDNS,CloudLogging,CloudMonitoring cloudServices
+    class DevFrontend,DevBackend,DevDatabase development
 ```
 
 ## API Endpoints
