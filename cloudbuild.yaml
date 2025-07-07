@@ -134,7 +134,7 @@ steps:
       '--max-instances', '3',
       '--set-env-vars', 'VITE_APP_ENV=development'
     ]
-    waitFor: ['wait-backend-dev']
+    waitFor: ['wait-backend-dev', 'push-frontend']
 
   # Get dev backend URL and set it for frontend
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
