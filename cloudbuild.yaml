@@ -174,7 +174,7 @@ steps:
   # ========================================
   # STAGE 6b: E2E TESTS WITH PLAYWRIGHT
   # ========================================
-  - name: 'mcr.microsoft.com/playwright:v1.43.1-jammy'
+  - name: 'mcr.microsoft.com/playwright:v1.53.2-jammy'
     id: 'e2e-playwright-debug'
     entrypoint: 'bash'
     args:
@@ -186,7 +186,7 @@ steps:
         npx playwright test --help
     waitFor: ['test-dev-environment']
 
-  - name: 'mcr.microsoft.com/playwright:v1.43.1-jammy'
+  - name: 'mcr.microsoft.com/playwright:v1.53.2-jammy'
     id: 'e2e-playwright'
     entrypoint: 'bash'
     args:
