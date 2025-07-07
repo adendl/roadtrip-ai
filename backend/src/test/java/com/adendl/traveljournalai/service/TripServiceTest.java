@@ -90,7 +90,11 @@ class TripServiceTest {
             savedTrip.setTripId(1L); // Set the ID that would be generated
             return savedTrip;
         });
-        when(tripPlanRepository.save(any(TripPlan.class))).thenReturn(testTripPlan);
+        when(tripPlanRepository.save(any(TripPlan.class))).thenAnswer(invocation -> {
+            TripPlan savedPlan = invocation.getArgument(0);
+            savedPlan.setId(1L); // Set the ID that would be generated
+            return savedPlan;
+        });
 
         // Mock OpenAI API response
         String mockOpenAiResponse = createMockOpenAiResponse();
@@ -130,6 +134,7 @@ class TripServiceTest {
         });
 
         verify(tripRepository, never()).save(any(Trip.class));
+        verify(restTemplate, never()).postForEntity(anyString(), any(), eq(String.class));
     }
 
     @Test
@@ -148,6 +153,7 @@ class TripServiceTest {
         });
 
         verify(tripRepository, never()).save(any(Trip.class));
+        verify(restTemplate, never()).postForEntity(anyString(), any(), eq(String.class));
     }
 
     @Test
@@ -158,7 +164,11 @@ class TripServiceTest {
         when(jwtConfig.getSecretKey()).thenReturn(TestUtils.TEST_JWT_SECRET);
         when(userRepository.findByUsername(TestUtils.TEST_USERNAME))
                 .thenReturn(Optional.of(testUser));
-        when(tripRepository.save(any(Trip.class))).thenReturn(testTrip);
+        when(tripRepository.save(any(Trip.class))).thenAnswer(invocation -> {
+            Trip savedTrip = invocation.getArgument(0);
+            savedTrip.setTripId(1L);
+            return savedTrip;
+        });
 
         // Mock OpenAI API failure
         ResponseEntity<String> mockResponseEntity = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -170,6 +180,35 @@ class TripServiceTest {
             tripService.createTrip(jwtToken, "Sydney", "Melbourne", true, 5, 
                     Arrays.asList("Beaches"), 800.0);
         });
+
+        verify(restTemplate).postForEntity(anyString(), any(), eq(String.class));
+    }
+
+    @Test
+    void createTrip_OpenAiApiException() throws Exception {
+        // Given
+        String jwtToken = TestUtils.createTestJwtToken(TestUtils.TEST_USERNAME);
+
+        when(jwtConfig.getSecretKey()).thenReturn(TestUtils.TEST_JWT_SECRET);
+        when(userRepository.findByUsername(TestUtils.TEST_USERNAME))
+                .thenReturn(Optional.of(testUser));
+        when(tripRepository.save(any(Trip.class))).thenAnswer(invocation -> {
+            Trip savedTrip = invocation.getArgument(0);
+            savedTrip.setTripId(1L);
+            return savedTrip;
+        });
+
+        // Mock OpenAI API exception
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
+                .thenThrow(new RuntimeException("Network error"));
+
+        // When & Then
+        assertThrows(RuntimeException.class, () -> {
+            tripService.createTrip(jwtToken, "Sydney", "Melbourne", true, 5, 
+                    Arrays.asList("Beaches"), 800.0);
+        });
+
+        verify(restTemplate).postForEntity(anyString(), any(), eq(String.class));
     }
 
     @Test
@@ -268,15 +307,13 @@ class TripServiceTest {
         verify(tripRepository, never()).delete(any(Trip.class));
     }
 
-
-
     private String createMockOpenAiResponse() {
         return """
                 {
                     "choices": [
                         {
                             "message": {
-                                "content": "{\\"days\\": [{\\"day\\": 1, \\"startLocation\\": {\\"name\\": \\"Sydney\\", \\"latitude\\": -33.8688, \\"longitude\\": 151.2093}, \\"finishLocation\\": {\\"name\\": \\"Melbourne\\", \\"latitude\\": -37.8136, \\"longitude\\": 144.9631}, \\"distanceKm\\": 800, \\"introduction\\": \\"Welcome to Melbourne\\", \\"placesOfInterest\\": [{\\"name\\": \\"Federation Square\\", \\"description\\": \\"A great place\\", \\"latitude\\": -37.8136, \\"longitude\\": 144.9631}]}]}"
+                                "content": "{\\"days\\": [{\\"day\\": 1, \\"startLocation\\": {\\"name\\": \\"Sydney\\", \\"latitude\\": -33.8688, \\"longitude\\": 151.2093}, \\"finishLocation\\": {\\"name\\": \\"Melbourne\\", \\"latitude\\": -37.8136, \\"longitude\\": 144.9631}, \\"distanceKm\\": 800, \\"introduction\\": \\"Welcome to Melbourne, the cultural capital of Australia. This vibrant city offers a perfect blend of art, music, food, and sports. From the iconic Federation Square to the hidden laneways filled with street art, Melbourne has something for everyone.\\", \\"placesOfInterest\\": [{\\"name\\": \\"Federation Square\\", \\"description\\": \\"A great place to start your Melbourne adventure\\", \\"latitude\\": -37.8136, \\"longitude\\": 144.9631}, {\\"name\\": \\"Royal Botanic Gardens\\", \\"description\\": \\"Beautiful gardens with native and exotic plants\\", \\"latitude\\": -37.8304, \\"longitude\\": 144.9796}]}]}"
                             }
                         }
                     ]

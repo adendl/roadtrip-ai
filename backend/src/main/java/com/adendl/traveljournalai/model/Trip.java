@@ -10,7 +10,7 @@ import java.util.List;
 @Entity
 @Table(name = "trips")
 @Data
-@EqualsAndHashCode(exclude = "tripPlans") // Exclude tripPlans to break circular reference
+@EqualsAndHashCode(exclude = {"tripPlans", "user"}) // Exclude tripPlans and user to break circular references
 public class Trip {
 
     @Id

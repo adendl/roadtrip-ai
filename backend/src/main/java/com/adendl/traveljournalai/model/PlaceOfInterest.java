@@ -2,10 +2,12 @@ package com.adendl.traveljournalai.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Entity
 @Table(name = "places_of_interest")
 @Data
+@EqualsAndHashCode(exclude = "dayPlan")
 public class PlaceOfInterest {
 
     @Id
