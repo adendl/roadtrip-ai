@@ -16,7 +16,7 @@ test.describe('Trip Management Flows', () => {
     
     // Login
     await page.goto('/login');
-    await page.fill('input[placeholder="Email"]', testUser.email);
+    await page.fill('input[placeholder="Username"]', testUser.username);
     await page.fill('input[placeholder="Password"]', testUser.password);
     await page.click('button:has-text("Login")');
     await expect(page).toHaveURL(/dashboard/);
@@ -66,7 +66,7 @@ test.describe('Trip Management Flows', () => {
     
     // Login
     await page.goto('/login');
-    await page.fill('input[placeholder="Email"]', testUser.email);
+    await page.fill('input[placeholder="Username"]', testUser.username);
     await page.fill('input[placeholder="Password"]', testUser.password);
     await page.click('button:has-text("Login")');
     await expect(page).toHaveURL(/dashboard/);
@@ -126,7 +126,7 @@ test.describe('Trip Management Flows', () => {
     
     // Login
     await page.goto('/login');
-    await page.fill('input[placeholder="Email"]', testUser.email);
+    await page.fill('input[placeholder="Username"]', testUser.username);
     await page.fill('input[placeholder="Password"]', testUser.password);
     await page.click('button:has-text("Login")');
     await expect(page).toHaveURL(/dashboard/);
