@@ -140,7 +140,20 @@ const TripForm: React.FC<TripFormProps> = ({
       const data = await response.json();
       console.log('Backend response:', data); // Debug the response
       if (data && data.tripId) {
-        onSubmit(e, { ...newTrip, ...data, createdAt: new Date().toISOString(), tripPlans: data.tripPlans || [] });
+        // Map backend fields to frontend fields
+        const mappedTrip = {
+          ...newTrip,
+          id: data.tripId,
+          from: data.fromCity || newTrip.from,
+          to: data.toCity || newTrip.to,
+          roundtrip: data.roundtrip !== undefined ? data.roundtrip : newTrip.roundtrip,
+          days: data.days || newTrip.days,
+          interests: data.interests || newTrip.interests,
+          distanceKm: data.distanceKm || newTrip.distanceKm,
+          createdAt: data.createdAt || new Date().toISOString(),
+          tripPlans: data.tripPlans || [],
+        };
+        onSubmit(e, mappedTrip);
       } else {
         setError('Invalid response from server.');
       }
