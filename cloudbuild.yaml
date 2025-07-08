@@ -174,17 +174,6 @@ steps:
   # ========================================
   # STAGE 6b: E2E TESTS WITH PLAYWRIGHT
   # ========================================
-  - name: 'mcr.microsoft.com/playwright:v1.53.2-jammy'
-    id: 'e2e-playwright-debug'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        cd frontend
-        npm ci
-        npx playwright --version
-        npx playwright test --help
-    waitFor: ['test-dev-environment']
 
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     id: 'get-frontend-url'
@@ -193,7 +182,7 @@ steps:
       - '-c'
       - |
         gcloud run services describe roadtrip-ai-frontend-dev --region=australia-southeast1 --format='value(status.url)' > /workspace/frontend_url.txt
-    waitFor: ['e2e-playwright-debug']
+    waitFor: ['test-dev-environment']
 
   - name: 'mcr.microsoft.com/playwright:v1.53.2-jammy'
     id: 'e2e-playwright'
@@ -233,7 +222,7 @@ steps:
       '--set-secrets', 'JWT_SECRET=jwt-secret:latest',
       '--set-secrets', 'OPENAI_API_KEY=openai-api-key:latest'
     ]
-    waitFor: ['test-dev-environment']
+    waitFor: ['e2e-playwright']
 
   # Wait for prod backend to be ready
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
