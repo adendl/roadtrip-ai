@@ -47,7 +47,7 @@ test.describe('Trip Management Flows', () => {
     await tripCard.click();
     
     // Should show trip details
-    await expect(page.locator('h2:has-text("Trip Details")')).toBeVisible();
+    await expect(page.locator(`h3:has-text("${TEST_TRIPS.simple.from} to ${TEST_TRIPS.simple.to}")`)).toBeVisible();
     await expect(page.locator(`text=${TEST_TRIPS.simple.from}`)).toBeVisible();
     await expect(page.locator(`text=${TEST_TRIPS.simple.to}`)).toBeVisible();
   });
@@ -89,7 +89,8 @@ test.describe('Trip Management Flows', () => {
         await page.click(`input[value="${interest}"]`);
       }
       
-      // Submit form
+      // Wait for button to be enabled and submit form
+      await page.waitForSelector('button:has-text("Generate Your Trip Plan"):not([disabled])', { timeout: 10000 });
       await page.click('button:has-text("Generate Your Trip Plan")');
       
       // Wait for trip to be created

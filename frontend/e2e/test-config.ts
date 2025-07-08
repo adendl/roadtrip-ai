@@ -83,12 +83,12 @@ export const createTestTrip = async (page: Page, tripData: any) => {
   
   // Set days
   for (let i = 1; i < tripData.days; i++) {
-    await page.click('button:has(svg[data-testid="plus"])');
+    await page.locator('button:has(svg)').nth(1).click(); // Second button is the plus button
   }
   
   // Set roundtrip
   if (tripData.roundtrip) {
-    await page.click('button:has-text("Round Trip")');
+    await page.click('span:has-text("Round Trip")');
   }
   
   // Select interests
@@ -96,6 +96,8 @@ export const createTestTrip = async (page: Page, tripData: any) => {
     await page.click(`input[value="${interest}"]`);
   }
   
+  // Wait for button to be enabled
+  await page.waitForSelector('button:has-text("Generate Your Trip Plan"):not([disabled])', { timeout: 10000 });
   await page.click('button:has-text("Generate Your Trip Plan")');
   
   // Wait for trip creation (with timeout)
@@ -112,7 +114,7 @@ export const clearTripForm = async (page: Page) => {
   
   // Reset days to 1
   while (await page.locator('span:has-text("1")').isVisible() === false) {
-    await page.click('button:has(svg[data-testid="minus"])');
+    await page.locator('button:has(svg)').first().click(); // First button is the minus button
   }
   
   // Uncheck all interests
@@ -125,7 +127,7 @@ export const clearTripForm = async (page: Page) => {
   }
   
   // Ensure roundtrip is unchecked
-  const roundTripButton = page.locator('button:has-text("Round Trip")');
+  const roundTripButton = page.locator('span:has-text("Round Trip")');
   if (await roundTripButton.locator('.bg-blue-600').isVisible()) {
     await roundTripButton.click();
   }
