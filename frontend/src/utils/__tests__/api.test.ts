@@ -85,7 +85,7 @@ describe('API Utils', () => {
   describe('API_ENDPOINTS', () => {
     it('should have correct endpoint structure', () => {
       expect(API_ENDPOINTS.LOGIN).toBe('api/users/login');
-      expect(API_ENDPOINTS.SIGNUP).toBe('api/users/signup');
+      expect(API_ENDPOINTS.SIGNUP).toBe('api/users/register');
       expect(API_ENDPOINTS.TRIPS.CREATE).toBe('api/trips/create');
       expect(API_ENDPOINTS.TRIPS.GET_USER_TRIPS).toBe('api/trips/user');
     });
