@@ -59,16 +59,52 @@ test.describe.serial('Authentication Flows', () => {
   });
 
   test('User can log in with valid credentials', async ({ page }) => {
+    // Listen for network requests
+    const responsePromise = page.waitForResponse(response => 
+      response.url().includes('/api/users/login')
+    );
+    
     await page.goto('/login');
     await page.fill('input[placeholder="Username"]', testUser.username);
     await page.fill('input[placeholder="Password"]', testUser.password);
     await page.click('button:has-text("Login")');
-    // If login fails, check for error message
-    if (await page.url().includes('/login')) {
-      const error = await page.locator('.text-red-600').textContent();
-      throw new Error('Login failed: ' + error);
+    
+    // Wait for the API response
+    const response = await responsePromise;
+    console.log('Login API response status:', response.status());
+    console.log('Login API response URL:', response.url());
+    
+    // Wait a moment for the response
+    await page.waitForTimeout(2000);
+    
+    // Check for error messages first
+    const errorElement = page.locator('.text-red-600');
+    if (await errorElement.isVisible()) {
+      const errorText = await errorElement.textContent();
+      throw new Error('Login failed: ' + errorText);
     }
-    await expect(page).toHaveURL(/dashboard/);
+    
+    // Check for success message
+    const successElement = page.locator('.text-green-600');
+    if (await successElement.isVisible()) {
+      console.log('Login success message found');
+      // Wait for redirect to dashboard
+      await expect(page).toHaveURL(/dashboard/, { timeout: 4000 });
+    } else {
+      // If no success message, check if we're already redirected
+      const currentUrl = page.url();
+      if (currentUrl.includes('/dashboard')) {
+        console.log('Already redirected to dashboard');
+      } else if (currentUrl.includes('/login')) {
+        console.log('Still on login page, waiting for redirect...');
+        // Wait for redirect to happen
+        await expect(page).toHaveURL(/dashboard/, { timeout: 4000 });
+      } else {
+        console.log('Unexpected URL:', currentUrl);
+        throw new Error('Login did not redirect to dashboard');
+      }
+    }
+    
     console.log('Logged in user:', testUser);
   });
 
