@@ -186,8 +186,26 @@ const Dashboard: React.FC = () => {
   }, []);
 
   const handleSubmit = useCallback((e: React.FormEvent, trip: Trip) => {
-    setLoading(true); // Set loading to true before submission
-    // onSubmit will be called by TripForm after API response
+    // Add the newly created trip to the trips array
+    setTrips((prevTrips) => [...prevTrips, trip]);
+    
+    // Reset the form
+    setNewTrip({
+      id: 0,
+      from: '',
+      to: '',
+      roundtrip: false,
+      days: 1,
+      interests: [],
+      distanceKm: 0,
+      createdAt: new Date().toISOString(),
+      tripPlans: [],
+    });
+    
+    // Clear any errors
+    setError(null);
+    
+    console.log('Trip created successfully:', trip);
   }, []);
 
   const handleDeleteTrip = useCallback((id: number) => {
