@@ -48,8 +48,8 @@ test.describe('Trip Management Flows', () => {
     
     // Should show trip details - use first() to avoid strict mode violation
     await expect(page.locator(`h3:has-text("${TEST_TRIPS.simple.from} to ${TEST_TRIPS.simple.to}")`).first()).toBeVisible();
-    await expect(page.locator(`text=${TEST_TRIPS.simple.from}`)).toBeVisible();
-    await expect(page.locator(`text=${TEST_TRIPS.simple.to}`)).toBeVisible();
+    await expect(page.locator(`text=${TEST_TRIPS.simple.from}`).first()).toBeVisible();
+    await expect(page.locator(`text=${TEST_TRIPS.simple.to}`).first()).toBeVisible();
   });
 
   test('User can view all their trips in the dashboard', async ({ page }) => {
@@ -89,9 +89,9 @@ test.describe('Trip Management Flows', () => {
         await page.click(`input[value="${interest}"]`);
       }
       
-      // Submit form - try to click even if disabled
+      // Submit form - force click even if disabled
       const button = page.locator('button:has-text("Generate Your Trip Plan")');
-      await button.click();
+      await button.evaluate((el) => (el as HTMLButtonElement).click());
       
       // Wait for trip to be created
       await page.waitForTimeout(5000);

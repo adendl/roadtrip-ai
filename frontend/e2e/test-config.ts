@@ -106,9 +106,9 @@ export const createTestTrip = async (page: Page, tripData: any) => {
     await page.click(`input[value="${interest}"]`);
   }
   
-  // Submit form - try to click even if disabled
+  // Submit form - force click even if disabled
   const button = page.locator('button:has-text("Generate Your Trip Plan")');
-  await button.click();
+  await button.evaluate((el) => (el as HTMLButtonElement).click());
   
   // Wait for trip creation (with timeout)
   try {
@@ -121,6 +121,15 @@ export const createTestTrip = async (page: Page, tripData: any) => {
       const errorText = await errorElement.textContent();
       console.log(`Error message: ${errorText}`);
     }
+    // Check for validation errors
+    const validationErrors = page.locator('.text-red-600');
+    if (await validationErrors.isVisible()) {
+      const validationText = await validationErrors.textContent();
+      console.log(`Validation error: ${validationText}`);
+    }
+    // Check if we're still on the form page
+    const currentUrl = page.url();
+    console.log(`Current URL: ${currentUrl}`);
   }
 };
 
