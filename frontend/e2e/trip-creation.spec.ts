@@ -14,17 +14,12 @@ test.describe('Trip Creation Flows', () => {
     await page.click('button:has-text("Sign Up")');
     await page.waitForTimeout(3000);
     
-    // Login - handle potential network issues
-    try {
-      await page.goto('/login');
-      await page.fill('input[placeholder="Email"]', testUser.email);
-      await page.fill('input[placeholder="Password"]', testUser.password);
-      await page.click('button:has-text("Login")');
-      await expect(page).toHaveURL(/dashboard/);
-    } catch (error) {
-      // If login page fails, try going directly to dashboard
-      await page.goto('/dashboard');
-    }
+    // Login
+    await page.goto('/login');
+    await page.fill('input[placeholder="Email"]', testUser.email);
+    await page.fill('input[placeholder="Password"]', testUser.password);
+    await page.click('button:has-text("Login")');
+    await expect(page).toHaveURL(/dashboard/);
     
     // Go to home page
     await page.goto('/');
@@ -66,17 +61,12 @@ test.describe('Trip Creation Flows', () => {
     await page.click('button:has-text("Sign Up")');
     await page.waitForTimeout(3000);
     
-    // Login - handle potential network issues
-    try {
-      await page.goto('/login');
-      await page.fill('input[placeholder="Email"]', testUser.email);
-      await page.fill('input[placeholder="Password"]', testUser.password);
-      await page.click('button:has-text("Login")');
-      await expect(page).toHaveURL(/dashboard/);
-    } catch (error) {
-      // If login page fails, try going directly to dashboard
-      await page.goto('/dashboard');
-    }
+    // Login
+    await page.goto('/login');
+    await page.fill('input[placeholder="Email"]', testUser.email);
+    await page.fill('input[placeholder="Password"]', testUser.password);
+    await page.click('button:has-text("Login")');
+    await expect(page).toHaveURL(/dashboard/);
     
     // Fill out the trip form
     await page.fill('input[placeholder="From"]', TEST_TRIPS.complex.from);
@@ -116,17 +106,12 @@ test.describe('Trip Creation Flows', () => {
     await page.click('button:has-text("Sign Up")');
     await page.waitForTimeout(3000);
     
-    // Login - handle potential network issues
-    try {
-      await page.goto('/login');
-      await page.fill('input[placeholder="Email"]', testUser.email);
-      await page.fill('input[placeholder="Password"]', testUser.password);
-      await page.click('button:has-text("Login")');
-      await expect(page).toHaveURL(/dashboard/);
-    } catch (error) {
-      // If login page fails, try going directly to dashboard
-      await page.goto('/dashboard');
-    }
+    // Login
+    await page.goto('/login');
+    await page.fill('input[placeholder="Email"]', testUser.email);
+    await page.fill('input[placeholder="Password"]', testUser.password);
+    await page.click('button:has-text("Login")');
+    await expect(page).toHaveURL(/dashboard/);
     
     // Fill out the trip form
     await page.fill('input[placeholder="From"]', TEST_TRIPS.short.from);
