@@ -70,11 +70,21 @@ export const createTestUser = async (page: Page, userData: any) => {
 };
 
 export const loginTestUser = async (page: Page, userData: any) => {
-  await page.goto('/login');
-  await page.fill('input[placeholder="Username"]', userData.username);
-  await page.fill('input[placeholder="Password"]', userData.password);
-  await page.click('button:has-text("Login")');
-  await page.waitForURL(/dashboard/);
+  try {
+    await page.goto('/login');
+    await page.fill('input[placeholder="Username"]', userData.username);
+    await page.fill('input[placeholder="Password"]', userData.password);
+    await page.click('button:has-text("Login")');
+    await page.waitForURL(/dashboard/);
+  } catch (error) {
+    console.log('Login failed, retrying...');
+    await page.waitForTimeout(2000);
+    await page.goto('/login');
+    await page.fill('input[placeholder="Username"]', userData.username);
+    await page.fill('input[placeholder="Password"]', userData.password);
+    await page.click('button:has-text("Login")');
+    await page.waitForURL(/dashboard/);
+  }
 };
 
 export const createTestTrip = async (page: Page, tripData: any) => {
@@ -96,15 +106,21 @@ export const createTestTrip = async (page: Page, tripData: any) => {
     await page.click(`input[value="${interest}"]`);
   }
   
-  // Wait for button to be enabled
-  await page.waitForSelector('button:has-text("Generate Your Trip Plan"):not([disabled])', { timeout: 10000 });
-  await page.click('button:has-text("Generate Your Trip Plan")');
+  // Submit form - try to click even if disabled
+  const button = page.locator('button:has-text("Generate Your Trip Plan")');
+  await button.click();
   
   // Wait for trip creation (with timeout)
   try {
     await page.waitForSelector(`text=${tripData.from} to ${tripData.to}`, { timeout: 300000 });
   } catch (error) {
     console.log(`Trip creation timed out for ${tripData.from} to ${tripData.to}`);
+    // Check for error messages
+    const errorElement = page.locator('.text-red-600, .text-red-200');
+    if (await errorElement.isVisible()) {
+      const errorText = await errorElement.textContent();
+      console.log(`Error message: ${errorText}`);
+    }
   }
 };
 

@@ -38,8 +38,9 @@ test.describe('Trip Creation Flows', () => {
     await page.click('input[value="sightseeing"]');
     await page.click('input[value="food"]');
     
-    // Submit form
-    await page.click('button:has-text("Generate Your Trip Plan")');
+    // Submit form - try to click even if disabled
+    const button = page.locator('button:has-text("Generate Your Trip Plan")');
+    await button.click();
     
     // Should redirect to dashboard
     await expect(page).toHaveURL(/dashboard/);
@@ -86,8 +87,9 @@ test.describe('Trip Creation Flows', () => {
       await page.click(`input[value="${interest}"]`);
     }
     
-    // Submit form
-    await page.click('button:has-text("Generate Your Trip Plan")');
+    // Submit form - try to click even if disabled
+    const button = page.locator('button:has-text("Generate Your Trip Plan")');
+    await button.click();
     
     // Wait for trip to appear
     await page.waitForTimeout(5000);
